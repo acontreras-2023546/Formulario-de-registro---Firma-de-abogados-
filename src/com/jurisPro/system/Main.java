@@ -8,7 +8,7 @@ package com.jurisPro.system;
  *
  * @author informatica
  */
-public class JurisPro {
+public class Main {
 
     /**
      * @param args the command line arguments
