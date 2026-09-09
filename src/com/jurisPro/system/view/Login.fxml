@@ -7,8 +7,9 @@
 <?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
 
-<VBox alignment="CENTER" spacing="15.0" styleClass="root" stylesheets="@../styles/styles.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.jurisPro.system.controller.LoginController">
+<VBox alignment="CENTER" prefHeight="448.0" prefWidth="307.0" spacing="15.0" styleClass="root" stylesheets="@../resources/styles/LoginStyles.css" xmlns="http://javafx.com/javafx/21.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.jurisPro.system.controller.LoginController">
    <children>
       <VBox alignment="CENTER_LEFT" maxWidth="350.0" spacing="12.0" styleClass="login-container">
          <children>
@@ -16,21 +17,30 @@
             
             <VBox spacing="5.0">
                <children>
-                  <Label styleClass="form-label" text="Usuario" />
+                  <Label styleClass="form-label" text="Usuario">
+                     <font>
+                        <Font size="14.0" />
+                     </font></Label>
                   <TextField fx:id="txtUsuario" promptText="Ingrese su usuario" />
                </children>
             </VBox>
             
             <VBox spacing="5.0">
                <children>
-                  <Label styleClass="form-label" text="Contraseña" />
+                  <Label styleClass="form-label" text="Contraseña">
+                     <font>
+                        <Font size="14.0" />
+                     </font></Label>
                   <PasswordField fx:id="txtPassword" promptText="Ingrese su contraseña" />
                </children>
             </VBox>
             
             <VBox spacing="5.0">
                <children>
-                  <Label styleClass="form-label" text="Rol" />
+                  <Label styleClass="form-label" text="Rol">
+                     <font>
+                        <Font size="14.0" />
+                     </font></Label>
                   <ComboBox fx:id="cmbRol" maxWidth="1.179649318E308" promptText="Seleccione su rol" />
                </children>
             </VBox>
