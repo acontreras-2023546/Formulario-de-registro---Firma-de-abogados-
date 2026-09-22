@@ -58,24 +58,39 @@ public class LoginController {
     }
 
     private Rol autenticarUsuarioSegunRol(String usuario, String password, Rol rolEsperado) {
+
+   
+    if (rolEsperado == Rol.ADMINISTRADOR) {
         Rol rolBD = usuarioRepository.autenticar(usuario, password);
-        if (rolBD != null && rolBD == rolEsperado) {
-            return rolBD;
+
+        if (rolBD == Rol.ADMINISTRADOR) {
+            return Rol.ADMINISTRADOR;
         }
 
-        if (rolEsperado == Rol.CLIENTE) {
-            if (clienteRepository.autenticarCliente(usuario, password) ||
-                empresaRepository.autenticarEmpresa(usuario, password)) {
-                return Rol.CLIENTE;
-            }
-        }
+        return null;
+    }
 
-        if (rolEsperado == Rol.ABOGADO && abogadoRepository.autenticarAbogado(usuario, password)) {
+  
+    if (rolEsperado == Rol.ABOGADO) {
+        if (abogadoRepository.autenticarAbogado(usuario, password)) {
             return Rol.ABOGADO;
         }
 
         return null;
     }
+
+   
+    if (rolEsperado == Rol.CLIENTE) {
+        if (clienteRepository.autenticarCliente(usuario, password)
+                || empresaRepository.autenticarEmpresa(usuario, password)) {
+            return Rol.CLIENTE;
+        }
+
+        return null;
+    }
+
+    return null;
+}
 
     private void abrirDashboard(ActionEvent event, Rol rol) {
         String archivoFXML;

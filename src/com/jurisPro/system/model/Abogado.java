@@ -10,24 +10,27 @@ public class Abogado {
     private String telephone;
     private String password;
     private String idSocio;
+    private String username;
 
     // Constructores
     public Abogado() {
     }
 
-    public Abogado(String idAbogado, String name, String lastname, String telephone, String password) {
+    public Abogado(String idAbogado, String name, String lastname, String telephone,String username, String password) {
         this.idAbogado = idAbogado;
         this.name = name;
         this.lastname = lastname;
         this.telephone = telephone;
+        this.username = username;
         this.password = password;
     }
 
-    public Abogado(String idAbogado, String name, String lastname, String telephone, String password, String idSocio) {
+    public Abogado(String idAbogado, String name, String lastname, String telephone,String username, String password, String idSocio) {
         this.idAbogado = idAbogado;
         this.name = name;
         this.lastname = lastname;
         this.telephone = telephone;
+        this.username = username;
         this.password = password;
         this.idSocio = idSocio;
     }
@@ -80,6 +83,16 @@ public class Abogado {
     public void setIdSocio(String idSocio) {
         this.idSocio = idSocio;
     }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+    
+    
 
     // Métodos esenciales para que el ComboBox reconozca el objeto seleccionado
     @Override

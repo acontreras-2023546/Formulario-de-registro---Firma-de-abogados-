@@ -37,7 +37,8 @@ public class AbogadoDashboardController {
 
     @FXML
     private TextField txtApellido;
-
+    
+    
     @FXML
     private TextField txtTelefono;
 
@@ -61,12 +62,13 @@ public class AbogadoDashboardController {
 
     @FXML
     private TableColumn<Cliente, String> colApellido;
-
+    
     @FXML
     private TableColumn<Cliente, String> colNit;
 
     @FXML
     private TableColumn<Cliente, String> colTelefono;
+    
 
 
     private final ClienteService clienteService =
@@ -227,6 +229,7 @@ public class AbogadoDashboardController {
                 txtNombre.getText().trim()
                 + " "
                 + txtApellido.getText().trim();
+       
 
 
         String idCaso = casoService.crearCaso(

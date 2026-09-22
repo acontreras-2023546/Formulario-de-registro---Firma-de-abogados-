@@ -79,11 +79,22 @@ CREATE TABLE Abogados (
     lastname VARCHAR(50) NOT NULL,
     especiality VARCHAR(70) NOT NULL,
     telephone VARCHAR(20) NOT NULL,
+    username VARCHAR(50) NOT NULL UNIQUE,
+    password VARCHAR(100) NOT NULL,
     Id_socio VARCHAR(36) NOT NULL,
     id_usuario VARCHAR(36) NULL,
+
     CONSTRAINT pk_abogados PRIMARY KEY (Id_abogado),
-    CONSTRAINT fk_abogados_socio FOREIGN KEY (Id_socio) REFERENCES Socio(Id_socio) ON DELETE CASCADE,
-    CONSTRAINT fk_abogados_usuario FOREIGN KEY (id_usuario) REFERENCES Usuarios(id_usuario) ON DELETE SET NULL
+
+    CONSTRAINT fk_abogados_socio
+        FOREIGN KEY (Id_socio)
+        REFERENCES Socio(Id_socio)
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_abogados_usuario
+        FOREIGN KEY (id_usuario)
+        REFERENCES Usuarios(id_usuario)
+        ON DELETE SET NULL
 );
 
 DELIMITER //
@@ -91,27 +102,50 @@ DELIMITER //
 DROP PROCEDURE IF EXISTS sp_insert_abogado //
 
 CREATE PROCEDURE sp_insert_abogado(
-    IN p_id VARCHAR(50),
-    IN p_name VARCHAR(100),
-    IN p_lastname VARCHAR(100),
+    IN p_id VARCHAR(36),
+    IN p_name VARCHAR(50),
+    IN p_lastname VARCHAR(50),
+    IN p_especiality VARCHAR(70),
     IN p_telephone VARCHAR(20),
-    IN p_password VARCHAR(100)
+    IN p_username VARCHAR(50),
+    IN p_password VARCHAR(100),
+    IN p_id_socio VARCHAR(36),
+    IN p_id_usuario VARCHAR(36)
 )
 BEGIN
-    INSERT INTO abogado (Id_abogado, name, lastname, telephone, password)
+    INSERT INTO Abogados (
+        Id_abogado,
+        name,
+        lastname,
+        especiality,
+        telephone,
+        username,
+        password,
+        Id_socio,
+        id_usuario
+    )
     VALUES (
         IF(p_id IS NULL OR p_id = '', UUID(), p_id),
-        IFNULL(p_name, ''),
-        IFNULL(p_lastname, ''),
-        IFNULL(p_telephone, ''),
-        IFNULL(p_password, '')
+        p_name,
+        p_lastname,
+        p_especiality,
+        p_telephone,
+        p_username,
+        p_password,
+        p_id_socio,
+        p_id_usuario
     );
 END //
 
+DROP PROCEDURE IF EXISTS sp_select_abogados //
+
 CREATE PROCEDURE sp_select_abogados()
 BEGIN
-    SELECT * FROM Abogados;
+    SELECT *
+    FROM Abogados;
 END //
+
+DROP PROCEDURE IF EXISTS sp_update_abogado //
 
 CREATE PROCEDURE sp_update_abogado(
     IN p_id_abogado VARCHAR(36),
@@ -119,20 +153,47 @@ CREATE PROCEDURE sp_update_abogado(
     IN p_lastname VARCHAR(50),
     IN p_especiality VARCHAR(70),
     IN p_telephone VARCHAR(20),
+    IN p_username VARCHAR(50),
+    IN p_password VARCHAR(100),
     IN p_id_socio VARCHAR(36)
 )
 BEGIN
     UPDATE Abogados
-    SET name = p_name, lastname = p_lastname, especiality = p_especiality, telephone = p_telephone, Id_socio = p_id_socio
+    SET
+        name = p_name,
+        lastname = p_lastname,
+        especiality = p_especiality,
+        telephone = p_telephone,
+        username = p_username,
+        password = p_password,
+        Id_socio = p_id_socio
     WHERE Id_abogado = p_id_abogado;
 END //
 
-CREATE PROCEDURE sp_delete_abogado(IN p_id_abogado VARCHAR(36))
-BEGIN
-    DELETE FROM Abogados WHERE Id_abogado = p_id_abogado;
-END //
-DELIMITER ;
+DROP PROCEDURE IF EXISTS sp_delete_abogado //
 
+CREATE PROCEDURE sp_delete_abogado(
+    IN p_id_abogado VARCHAR(36)
+)
+BEGIN
+    DELETE FROM Abogados
+    WHERE Id_abogado = p_id_abogado;
+END //
+
+DROP PROCEDURE IF EXISTS sp_autenticar_abogado //
+
+CREATE PROCEDURE sp_autenticar_abogado(
+    IN p_username VARCHAR(50),
+    IN p_password VARCHAR(100)
+)
+BEGIN
+    SELECT Id_abogado, name, lastname, especiality, telephone, Id_socio, id_usuario
+    FROM Abogados
+    WHERE username = p_username
+      AND password = p_password;
+END //
+
+DELIMITER ;
 -- =============================================================================
 -- 4. TABLA Y PROCEDIMIENTOS DE CASOS
 -- =============================================================================
