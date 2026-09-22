@@ -1,6 +1,5 @@
 package com.jurispro.system.model;
 
-<<<<<<< HEAD
 import java.util.Objects;
 
 public class Abogado {
@@ -11,6 +10,7 @@ public class Abogado {
     private String telephone;
     private String password;
     private String idSocio;
+    private String idUsuario; // <--- Atributo agregado
 
     // Constructores
     public Abogado() {
@@ -31,6 +31,16 @@ public class Abogado {
         this.telephone = telephone;
         this.password = password;
         this.idSocio = idSocio;
+    }
+
+    public Abogado(String idAbogado, String name, String lastname, String telephone, String password, String idSocio, String idUsuario) {
+        this.idAbogado = idAbogado;
+        this.name = name;
+        this.lastname = lastname;
+        this.telephone = telephone;
+        this.password = password;
+        this.idSocio = idSocio;
+        this.idUsuario = idUsuario;
     }
 
     // Getters y Setters
@@ -82,7 +92,15 @@ public class Abogado {
         this.idSocio = idSocio;
     }
 
-    // Métodos esenciales para que el ComboBox reconozca el objeto seleccionado
+    public String getIdUsuario() {
+        return idUsuario;
+    }
+
+    public void setIdUsuario(String idUsuario) {
+        this.idUsuario = idUsuario;
+    }
+
+    // Métodos esenciales para el ComboBox y comparaciones
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -102,34 +120,6 @@ public class Abogado {
 
     @Override
     public String toString() {
-        return (name != null ? name : "") + " " + (lastname != null ? lastname : "");
+        return getName() != null ? getName().trim() : "";
     }
 }
-=======
-public class Abogado {
-    private String idAbogado;
-    private String name;
-    private String lastname;
-    private String password; // Nuevo campo
-    
-
-    public Abogado() {}
-
-    public String getIdAbogado() { return idAbogado; }
-    public void setIdAbogado(String idAbogado) { this.idAbogado = idAbogado; }
-
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
-
-    public String getLastname() { return lastname; }
-    public void setLastname(String lastname) { this.lastname = lastname; }
-
-    public String getPassword() { return password; }
-    public void setPassword(String password) { this.password = password; }
-
-    @Override
-    public String toString() {
-        return name + " " + (lastname != null ? lastname : "");
-    }
-}
->>>>>>> 2d1c65d (fix: arreglo base de datos)

@@ -12,11 +12,7 @@ import java.util.List;
 
 public class ClienteRepository {
 
-<<<<<<< HEAD
     public List<Cliente> obtenerTodos() {
-=======
-    public List<Cliente> listarTodos() {
->>>>>>> 2d1c65d (fix: arreglo base de datos)
         List<Cliente> clientes = new ArrayList<>();
         String sql = "{CALL sp_select_clientes()}";
 
@@ -24,11 +20,6 @@ public class ClienteRepository {
 
             while (rs.next()) {
                 Cliente cliente = new Cliente();
-
-<<<<<<< HEAD
-=======
-                // 1. Corregido: La tabla usa 'DPI', 'name', 'lastname', etc.
->>>>>>> 2d1c65d (fix: arreglo base de datos)
                 cliente.setDpi(rs.getString("DPI"));
                 cliente.setNit(rs.getString("NIT"));
                 cliente.setNombre(rs.getString("name"));
@@ -36,10 +27,6 @@ public class ClienteRepository {
                 cliente.setTelefono(rs.getString("telephone"));
                 cliente.setDireccion(rs.getString("adress"));
 
-<<<<<<< HEAD
-=======
-                // 2. Mapeo del abogado asociado
->>>>>>> 2d1c65d (fix: arreglo base de datos)
                 String idAbogado = rs.getString("Id_abogado");
                 if (idAbogado != null) {
                     Abogado abogado = new Abogado();
@@ -56,7 +43,6 @@ public class ClienteRepository {
         return clientes;
     }
 
-<<<<<<< HEAD
     public List<Cliente> listarTodos() {
         return obtenerTodos();
     }
@@ -76,27 +62,17 @@ public class ClienteRepository {
             }
         } catch (SQLException e) {
             System.err.println("Error al autenticar cliente: " + e.getMessage());
-            return obtenerTodos().stream()
-                    .anyMatch(c -> c.getNombre() != null && c.getNombre().equalsIgnoreCase(usuario));
         }
 
         return false;
     }
 
     public boolean guardar(Cliente cliente) {
-=======
-    public boolean guardar(Cliente cliente) {
-        // Orden de parámetros según sp_insert_cliente:
-        // (p_dpi, p_nit, p_name, p_lastname, p_telephone, p_adress, p_id_abogado)
->>>>>>> 2d1c65d (fix: arreglo base de datos)
-        String sql = "{CALL sp_insert_cliente(?, ?, ?, ?, ?, ?, ?)}";
+        // Ahora envía 8 parámetros incluyendo la contraseña
+        String sql = "{CALL sp_insert_cliente(?, ?, ?, ?, ?, ?, ?, ?)}";
 
         try (Connection conn = Conexion.getConnection(); CallableStatement stmt = conn.prepareCall(sql)) {
 
-<<<<<<< HEAD
-=======
-            // Validar que el DPI no sea nulo ni esté vacío
->>>>>>> 2d1c65d (fix: arreglo base de datos)
             if (cliente.getDpi() == null || cliente.getDpi().trim().isEmpty()) {
                 System.err.println("Error: El DPI del cliente no puede estar vacío.");
                 return false;
@@ -108,13 +84,10 @@ public class ClienteRepository {
             stmt.setString(4, cliente.getApellido());
             stmt.setString(5, cliente.getTelefono());
             stmt.setString(6, cliente.getDireccion());
+            stmt.setString(7, cliente.getPassword());
 
-<<<<<<< HEAD
-=======
-            // 7. ID del abogado asignado (puede ser null)
->>>>>>> 2d1c65d (fix: arreglo base de datos)
             String idAbogado = (cliente.getAbogado() != null) ? cliente.getAbogado().getIdAbogado() : null;
-            stmt.setString(7, idAbogado);
+            stmt.setString(8, idAbogado);
 
             stmt.execute();
             return true;
@@ -126,12 +99,7 @@ public class ClienteRepository {
     }
 
     public boolean actualizar(Cliente cliente) {
-<<<<<<< HEAD
-=======
-        // Orden de parámetros según sp_update_cliente:
-        // (p_dpi, p_nit, p_name, p_lastname, p_telephone, p_adress, p_id_abogado)
->>>>>>> 2d1c65d (fix: arreglo base de datos)
-        String sql = "{CALL sp_update_cliente(?, ?, ?, ?, ?, ?, ?)}";
+        String sql = "{CALL sp_update_cliente(?, ?, ?, ?, ?, ?, ?, ?)}";
 
         try (Connection conn = Conexion.getConnection(); CallableStatement stmt = conn.prepareCall(sql)) {
 
@@ -141,9 +109,10 @@ public class ClienteRepository {
             stmt.setString(4, cliente.getApellido());
             stmt.setString(5, cliente.getTelefono());
             stmt.setString(6, cliente.getDireccion());
+            stmt.setString(7, cliente.getPassword());
 
             String idAbogado = (cliente.getAbogado() != null) ? cliente.getAbogado().getIdAbogado() : null;
-            stmt.setString(7, idAbogado);
+            stmt.setString(8, idAbogado);
 
             stmt.execute();
             return true;
@@ -155,10 +124,6 @@ public class ClienteRepository {
     }
 
     public boolean eliminar(String dpi) {
-<<<<<<< HEAD
-=======
-        // p_dpi VARCHAR(13)
->>>>>>> 2d1c65d (fix: arreglo base de datos)
         String sql = "{CALL sp_delete_cliente(?)}";
 
         try (Connection conn = Conexion.getConnection(); CallableStatement stmt = conn.prepareCall(sql)) {
