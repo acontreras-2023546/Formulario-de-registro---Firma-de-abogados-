@@ -87,16 +87,25 @@ CREATE TABLE Abogados (
 );
 
 DELIMITER //
+
+DROP PROCEDURE IF EXISTS sp_insert_abogado //
+
 CREATE PROCEDURE sp_insert_abogado(
-    IN p_name VARCHAR(50),
-    IN p_lastname VARCHAR(50),
-    IN p_especiality VARCHAR(70),
+    IN p_id VARCHAR(50),
+    IN p_name VARCHAR(100),
+    IN p_lastname VARCHAR(100),
     IN p_telephone VARCHAR(20),
-    IN p_id_socio VARCHAR(36)
+    IN p_password VARCHAR(100)
 )
 BEGIN
-    INSERT INTO Abogados(Id_abogado, name, lastname, especiality, telephone, Id_socio)
-    VALUES(UUID(), p_name, p_lastname, p_especiality, p_telephone, p_id_socio);
+    INSERT INTO abogado (Id_abogado, name, lastname, telephone, password)
+    VALUES (
+        IF(p_id IS NULL OR p_id = '', UUID(), p_id),
+        IFNULL(p_name, ''),
+        IFNULL(p_lastname, ''),
+        IFNULL(p_telephone, ''),
+        IFNULL(p_password, '')
+    );
 END //
 
 CREATE PROCEDURE sp_select_abogados()
@@ -186,11 +195,11 @@ CREATE TABLE Clientes (
     lastname VARCHAR(50) NOT NULL,
     telephone VARCHAR(50) NOT NULL,
     adress VARCHAR(90) NOT NULL,
-    Id_caso VARCHAR(36) NOT NULL,
+    Id_abogado VARCHAR(36) NULL,
     id_usuario VARCHAR(36) NULL,
     CONSTRAINT pk_clientes PRIMARY KEY (DPI),
     CONSTRAINT uq_clientes_nit UNIQUE (NIT),
-    CONSTRAINT fk_clientes_casos FOREIGN KEY (Id_caso) REFERENCES Casos(Id_caso) ON DELETE CASCADE,
+    CONSTRAINT fk_clientes_abogado FOREIGN KEY (Id_abogado) REFERENCES Abogados(Id_abogado) ON DELETE CASCADE,
     CONSTRAINT fk_clientes_usuario FOREIGN KEY (id_usuario) REFERENCES Usuarios(id_usuario) ON DELETE SET NULL
 );
 
@@ -202,11 +211,11 @@ CREATE PROCEDURE sp_insert_cliente(
     IN p_lastname VARCHAR(50),
     IN p_telephone VARCHAR(50),
     IN p_adress VARCHAR(90),
-    IN p_id_caso VARCHAR(36)
+    IN p_id_abogado VARCHAR(36)
 )
 BEGIN
-    INSERT INTO Clientes(DPI, NIT, name, lastname, telephone, adress, Id_caso)
-    VALUES(p_dpi, p_nit, p_name, p_lastname, p_telephone, p_adress, p_id_caso);
+    INSERT INTO Clientes(DPI, NIT, name, lastname, telephone, adress, Id_abogado)
+    VALUES(p_dpi, p_nit, p_name, p_lastname, p_telephone, p_adress, p_id_abogado);
 END //
 
 CREATE PROCEDURE sp_select_clientes()
@@ -221,11 +230,11 @@ CREATE PROCEDURE sp_update_cliente(
     IN p_lastname VARCHAR(50),
     IN p_telephone VARCHAR(50),
     IN p_adress VARCHAR(90),
-    IN p_id_caso VARCHAR(36)
+    IN p_id_abogado VARCHAR(36)
 )
 BEGIN
     UPDATE Clientes
-    SET NIT = p_nit, name = p_name, lastname = p_lastname, telephone = p_telephone, adress = p_adress, Id_caso = p_id_caso
+    SET NIT = p_nit, name = p_name, lastname = p_lastname, telephone = p_telephone, adress = p_adress, Id_abogado = p_id_abogado
     WHERE DPI = p_dpi;
 END //
 
@@ -243,10 +252,10 @@ CREATE TABLE Empresas (
     name VARCHAR(50) NOT NULL,
     telephone VARCHAR(50) NOT NULL,
     adress VARCHAR(90) NOT NULL,
-    Id_caso VARCHAR(36) NOT NULL,
+    Id_abogado VARCHAR(36) NULL,
     id_usuario VARCHAR(36) NULL,
     CONSTRAINT pk_empresas PRIMARY KEY (Id_empresa),
-    CONSTRAINT fk_empresas_casos FOREIGN KEY (Id_caso) REFERENCES Casos(Id_caso) ON DELETE CASCADE,
+    CONSTRAINT fk_empresas_abogado FOREIGN KEY (Id_abogado) REFERENCES Abogados(Id_abogado) ON DELETE CASCADE,
     CONSTRAINT fk_empresas_usuario FOREIGN KEY (id_usuario) REFERENCES Usuarios(id_usuario) ON DELETE SET NULL
 );
 
@@ -255,11 +264,11 @@ CREATE PROCEDURE sp_insert_empresa(
     IN p_name VARCHAR(50),
     IN p_telephone VARCHAR(50),
     IN p_adress VARCHAR(90),
-    IN p_id_caso VARCHAR(36)
+    IN p_id_abogado VARCHAR(36)
 )
 BEGIN
-    INSERT INTO Empresas(Id_empresa, name, telephone, adress, Id_caso)
-    VALUES(UUID(), p_name, p_telephone, p_adress, p_id_caso);
+    INSERT INTO Empresas(Id_empresa, name, telephone, adress, Id_abogado)
+    VALUES(UUID(), p_name, p_telephone, p_adress, p_id_abogado);
 END //
 
 CREATE PROCEDURE sp_select_empresas()
@@ -272,11 +281,11 @@ CREATE PROCEDURE sp_update_empresa(
     IN p_name VARCHAR(50),
     IN p_telephone VARCHAR(50),
     IN p_adress VARCHAR(90),
-    IN p_id_caso VARCHAR(36)
+    IN p_id_abogado VARCHAR(36)
 )
 BEGIN
     UPDATE Empresas
-    SET name = p_name, telephone = p_telephone, adress = p_adress, Id_caso = p_id_caso
+    SET name = p_name, telephone = p_telephone, adress = p_adress, Id_abogado = p_id_abogado
     WHERE Id_empresa = p_id_empresa;
 END //
 

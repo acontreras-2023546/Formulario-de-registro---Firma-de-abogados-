@@ -8,3 +8,5 @@ INSERT INTO Usuarios (id_usuario, username, password, rol) VALUES
 ('u1', 'admin', 'admin123', 'ADMINISTRADOR'),
 ('u2', 'abogado1', 'abogado123', 'ABOGADO'),
 ('u3', 'cliente1', 'cliente123', 'CLIENTE');
+
+CALL sp_insert_socio('Carlos', 'Mendoza', '55551234');

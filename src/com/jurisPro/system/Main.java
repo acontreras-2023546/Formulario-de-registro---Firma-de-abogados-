@@ -1,4 +1,4 @@
-package com.jurisPro.system;
+package com.jurispro.system;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -9,12 +9,19 @@ import javafx.stage.Stage;
 public class Main extends Application {
 
     @Override
-    public void start(Stage primaryStage) throws Exception {
-        Parent root = FXMLLoader.load(getClass().getResource("/com/jurisPro/system/view/Login.fxml"));
-        primaryStage.setTitle("JurisPro - Acceso al Sistema");
-        primaryStage.setScene(new Scene(root));
-        primaryStage.setResizable(false);
-        primaryStage.show();
+    public void start(Stage primaryStage) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/jurispro/system/view/Login.fxml"));
+            Parent root = loader.load();
+
+            Scene scene = new Scene(root);
+            primaryStage.setTitle("JurisPro - Inicio de Sesión");
+            primaryStage.setScene(scene);
+            primaryStage.show();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public static void main(String[] args) {
