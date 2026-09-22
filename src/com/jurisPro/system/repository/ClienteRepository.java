@@ -20,7 +20,6 @@ public class ClienteRepository {
 
             while (rs.next()) {
                 Cliente cliente = new Cliente();
-
                 cliente.setDpi(rs.getString("DPI"));
                 cliente.setNit(rs.getString("NIT"));
                 cliente.setNombre(rs.getString("name"));
@@ -63,15 +62,14 @@ public class ClienteRepository {
             }
         } catch (SQLException e) {
             System.err.println("Error al autenticar cliente: " + e.getMessage());
-            return obtenerTodos().stream()
-                    .anyMatch(c -> c.getNombre() != null && c.getNombre().equalsIgnoreCase(usuario));
         }
 
         return false;
     }
 
     public boolean guardar(Cliente cliente) {
-        String sql = "{CALL sp_insert_cliente(?, ?, ?, ?, ?, ?, ?)}";
+        // Ahora envía 8 parámetros incluyendo la contraseña
+        String sql = "{CALL sp_insert_cliente(?, ?, ?, ?, ?, ?, ?, ?)}";
 
         try (Connection conn = Conexion.getConnection(); CallableStatement stmt = conn.prepareCall(sql)) {
 
@@ -86,9 +84,10 @@ public class ClienteRepository {
             stmt.setString(4, cliente.getApellido());
             stmt.setString(5, cliente.getTelefono());
             stmt.setString(6, cliente.getDireccion());
+            stmt.setString(7, cliente.getPassword());
 
             String idAbogado = (cliente.getAbogado() != null) ? cliente.getAbogado().getIdAbogado() : null;
-            stmt.setString(7, idAbogado);
+            stmt.setString(8, idAbogado);
 
             stmt.execute();
             return true;
@@ -100,7 +99,7 @@ public class ClienteRepository {
     }
 
     public boolean actualizar(Cliente cliente) {
-        String sql = "{CALL sp_update_cliente(?, ?, ?, ?, ?, ?, ?)}";
+        String sql = "{CALL sp_update_cliente(?, ?, ?, ?, ?, ?, ?, ?)}";
 
         try (Connection conn = Conexion.getConnection(); CallableStatement stmt = conn.prepareCall(sql)) {
 
@@ -110,9 +109,10 @@ public class ClienteRepository {
             stmt.setString(4, cliente.getApellido());
             stmt.setString(5, cliente.getTelefono());
             stmt.setString(6, cliente.getDireccion());
+            stmt.setString(7, cliente.getPassword());
 
             String idAbogado = (cliente.getAbogado() != null) ? cliente.getAbogado().getIdAbogado() : null;
-            stmt.setString(7, idAbogado);
+            stmt.setString(8, idAbogado);
 
             stmt.execute();
             return true;

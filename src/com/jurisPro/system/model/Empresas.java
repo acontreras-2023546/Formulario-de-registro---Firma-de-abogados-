@@ -12,10 +12,9 @@ public class Empresas {
     public Empresas() {
     }
 
-    public Empresas(String idEmpresa, String nombre, String telefono, String direccion, String password, Abogado abogado) {
+    public Empresas(String idEmpresa, String nombre, Abogado abogado) {
         this.idEmpresa = idEmpresa;
         this.nombre = nombre;
-        this.telefono = telefono;
         this.direccion = direccion;
         this.password = password;
         this.abogado = abogado;
@@ -27,14 +26,6 @@ public class Empresas {
 
     public void setIdEmpresa(String idEmpresa) {
         this.idEmpresa = idEmpresa;
-    }
-
-    public String getId() {
-        return idEmpresa;
-    }
-
-    public void setId(String id) {
-        this.idEmpresa = id;
     }
 
     public String getNombre() {
@@ -75,5 +66,10 @@ public class Empresas {
 
     public void setAbogado(Abogado abogado) {
         this.abogado = abogado;
+    }
+
+    @Override
+    public String toString() {
+        return nombre != null ? nombre : "";
     }
 }
