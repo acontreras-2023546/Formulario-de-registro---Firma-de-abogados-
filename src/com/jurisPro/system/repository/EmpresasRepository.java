@@ -12,6 +12,7 @@ import java.util.List;
 
 public class EmpresasRepository {
 
+<<<<<<< HEAD
     public List<Empresas> obtenerTodos() {
         List<Empresas> empresas = new ArrayList<>();
         String sql = "{CALL sp_select_empresas()}";
@@ -26,13 +27,32 @@ public class EmpresasRepository {
                 empresa.setDireccion(rs.getString("direccion"));
                 empresa.setPassword(rs.getString("password"));
 
+=======
+    public List<Empresas> listarTodos() {
+        List<Empresas> empresas = new ArrayList<>();
+        String sql = "{CALL sp_select_empresas()}"; // Ajusta según tu Stored Procedure
+
+        try (Connection conn = Conexion.getConnection(); 
+             CallableStatement stmt = conn.prepareCall(sql); 
+             ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                Empresas empresa = new Empresas();
+                empresa.setIdEmpresa(rs.getString("Id_empresa"));
+                empresa.setNombre(rs.getString("nombre"));
+                
+>>>>>>> 2d1c65d (fix: arreglo base de datos)
                 String idAbogado = rs.getString("Id_abogado");
                 if (idAbogado != null) {
                     Abogado abogado = new Abogado();
                     abogado.setIdAbogado(idAbogado);
                     empresa.setAbogado(abogado);
                 }
+<<<<<<< HEAD
 
+=======
+                
+>>>>>>> 2d1c65d (fix: arreglo base de datos)
                 empresas.add(empresa);
             }
         } catch (SQLException e) {
@@ -42,6 +62,7 @@ public class EmpresasRepository {
         return empresas;
     }
 
+<<<<<<< HEAD
     public List<Empresas> listarTodos() {
         return obtenerTodos();
     }
@@ -81,17 +102,32 @@ public class EmpresasRepository {
 
             String idAbogado = (empresa.getAbogado() != null) ? empresa.getAbogado().getIdAbogado() : null;
             stmt.setString(6, idAbogado);
+=======
+    public boolean guardar(Empresas empresa) {
+        String sql = "{CALL sp_insert_empresa(?, ?)}";
+
+        try (Connection conn = Conexion.getConnection(); 
+             CallableStatement stmt = conn.prepareCall(sql)) {
+
+            stmt.setString(1, empresa.getNombre());
+            stmt.setString(2, empresa.getAbogado() != null ? empresa.getAbogado().getIdAbogado() : null);
+>>>>>>> 2d1c65d (fix: arreglo base de datos)
 
             stmt.execute();
             return true;
 
         } catch (SQLException e) {
+<<<<<<< HEAD
             System.err.println("Error al guardar empresa: " + e.getMessage());
+=======
+            System.err.println("Error al insertar empresa: " + e.getMessage());
+>>>>>>> 2d1c65d (fix: arreglo base de datos)
             return false;
         }
     }
 
     public boolean actualizar(Empresas empresa) {
+<<<<<<< HEAD
         String sql = "{CALL sp_update_empresa(?, ?, ?, ?, ?, ?)}";
 
         try (Connection conn = Conexion.getConnection(); CallableStatement stmt = conn.prepareCall(sql)) {
@@ -108,6 +144,19 @@ public class EmpresasRepository {
             stmt.execute();
             return true;
 
+=======
+        String sql = "{CALL sp_update_empresa(?, ?, ?)}";
+
+        try (Connection conn = Conexion.getConnection(); 
+             CallableStatement stmt = conn.prepareCall(sql)) {
+
+            stmt.setString(1, empresa.getIdEmpresa());
+            stmt.setString(2, empresa.getNombre());
+            stmt.setString(3, empresa.getAbogado() != null ? empresa.getAbogado().getIdAbogado() : null);
+
+            stmt.execute();
+            return true;
+>>>>>>> 2d1c65d (fix: arreglo base de datos)
         } catch (SQLException e) {
             System.err.println("Error al actualizar empresa: " + e.getMessage());
             return false;
@@ -117,15 +166,28 @@ public class EmpresasRepository {
     public boolean eliminar(String idEmpresa) {
         String sql = "{CALL sp_delete_empresa(?)}";
 
+<<<<<<< HEAD
         try (Connection conn = Conexion.getConnection(); CallableStatement stmt = conn.prepareCall(sql)) {
 
             stmt.setString(1, idEmpresa);
             stmt.execute();
             return true;
+=======
+        try (Connection conn = Conexion.getConnection(); 
+             CallableStatement stmt = conn.prepareCall(sql)) {
+
+            stmt.setString(1, idEmpresa);
+            int filasAfectadas = stmt.executeUpdate();
+            return filasAfectadas > 0;
+>>>>>>> 2d1c65d (fix: arreglo base de datos)
 
         } catch (SQLException e) {
             System.err.println("Error al eliminar empresa: " + e.getMessage());
             return false;
         }
     }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 2d1c65d (fix: arreglo base de datos)

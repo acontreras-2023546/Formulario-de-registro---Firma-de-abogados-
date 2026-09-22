@@ -1,5 +1,6 @@
 package com.jurispro.system.model;
 
+<<<<<<< HEAD
 import java.util.Objects;
 
 public class Abogado {
@@ -104,3 +105,31 @@ public class Abogado {
         return (name != null ? name : "") + " " + (lastname != null ? lastname : "");
     }
 }
+=======
+public class Abogado {
+    private String idAbogado;
+    private String name;
+    private String lastname;
+    private String password; // Nuevo campo
+    
+
+    public Abogado() {}
+
+    public String getIdAbogado() { return idAbogado; }
+    public void setIdAbogado(String idAbogado) { this.idAbogado = idAbogado; }
+
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+
+    public String getLastname() { return lastname; }
+    public void setLastname(String lastname) { this.lastname = lastname; }
+
+    public String getPassword() { return password; }
+    public void setPassword(String password) { this.password = password; }
+
+    @Override
+    public String toString() {
+        return name + " " + (lastname != null ? lastname : "");
+    }
+}
+>>>>>>> 2d1c65d (fix: arreglo base de datos)

@@ -4,6 +4,7 @@
 <?import javafx.scene.layout.*?>
 
 <BorderPane prefHeight="600.0" prefWidth="900.0" 
+<<<<<<< HEAD
             stylesheets="@../resources/styles/AdminStyles.css"
             xmlns="http://javafx.com/javafx/8" 
             xmlns:fx="http://javafx.com/fxml/1"
@@ -104,4 +105,98 @@
             </items>
         </SplitPane>
     </center>
+=======
+            xmlns="http://javafx.com/javafx/8" 
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.jurispro.system.controller.AdminDashboardController">
+   <top>
+      <ToolBar BorderPane.alignment="CENTER">
+         <items>
+            <Label style="-fx-font-weight: bold; -fx-font-size: 16px;" text="Panel de Administración" />
+            <Pane HBox.hgrow="ALWAYS" />
+            <Button fx:id="btnLogout" onAction="#handleCerrarSesion" text="Cerrar Sesión" />
+         </items>
+      </ToolBar>
+   </top>
+   <center>
+      <SplitPane dividerPositions="0.6" BorderPane.alignment="CENTER">
+        <items>
+            <!-- LADO IZQUIERDO: Tabla de registros y filtro -->
+            <VBox spacing="10.0">
+               <padding><Insets bottom="10" left="10" right="10" top="10" /></padding>
+               <children>
+                  <HBox alignment="CENTER_LEFT" spacing="10.0">
+                     <children>
+                        <Label text="Filtrar por:" />
+                        <ComboBox fx:id="cmbTipoUsuario" prefWidth="200.0" promptText="Abogados / Clientes / Empresas" />
+                     </children>
+                  </HBox>
+                  <TableView fx:id="tblGeneral" VBox.vgrow="ALWAYS">
+                    <columns>
+                      <TableColumn fx:id="colId" prefWidth="80.0" text="ID / DPI" />
+                      <TableColumn fx:id="colNombre" prefWidth="150.0" text="Nombre / Entidad" />
+                      <TableColumn fx:id="colTipo" prefWidth="90.0" text="Tipo" />
+                      <TableColumn fx:id="colAbogado" prefWidth="150.0" text="Abogado Asignado" />
+                    </columns>
+                  </TableView>
+               </children>
+            </VBox>
+
+            <!-- LADO DERECHO: Formulario completo con Scroll -->
+            <ScrollPane fitToWidth="true">
+               <content>
+                  <VBox spacing="10.0">
+                     <padding><Insets bottom="15" left="15" right="15" top="15" /></padding>
+                     <children>
+                        <Label style="-fx-font-weight: bold; -fx-font-size: 14px;" text="Gestión de Registro" />
+                        <Separator prefWidth="200.0" />
+                        
+                        <Label text="Tipo de Registro:" />
+                        <ComboBox fx:id="cmbFormTipo" prefWidth="250.0" />
+
+                        <Label text="DPI (Cliente):" />
+                        <TextField fx:id="txtDpi" promptText="Obligatorio para Cliente" />
+
+                        <Label text="NIT:" />
+                        <TextField fx:id="txtNit" promptText="Opcional / CF" />
+
+                        <Label text="Nombre:" />
+                        <TextField fx:id="txtNombre" />
+
+                        <Label text="Apellido (Cliente):" />
+                        <TextField fx:id="txtApellido" />
+
+                        <Label text="Teléfono:" />
+                        <TextField fx:id="txtTelefono" />
+
+                        <Label text="Dirección:" />
+                        <TextField fx:id="txtDireccion" />
+
+                        <Label text="Asignar Abogado (Clientes/Empresas):" />
+                        <ComboBox fx:id="cmbAsignarAbogado" prefWidth="250.0" />
+
+                        <!-- NUEVOS CAMPOS: Contraseña y Confirmar Contraseña -->
+                        <Separator prefWidth="200.0" />
+                        <Label text="Contraseña:" />
+                        <PasswordField fx:id="txtPassword" promptText="Ingrese contraseña" />
+
+                        <Label text="Confirmar Contraseña:" />
+                        <PasswordField fx:id="txtConfirmPassword" promptText="Repita la contraseña" />
+
+                        <Separator prefWidth="200.0" />
+                        <VBox alignment="CENTER" spacing="8.0">
+                           <children>
+                              <Button fx:id="btnCrear" onAction="#handleCrear" prefWidth="220.0" style="-fx-background-color: #27ae60; -fx-text-fill: white;" text="Crear Registro" />
+                              <Button fx:id="btnEditar" onAction="#handleEditar" prefWidth="220.0" style="-fx-background-color: #f39c12; -fx-text-fill: white;" text="Guardar Cambios" />
+                              <Button fx:id="btnEliminar" onAction="#handleEliminar" prefWidth="220.0" style="-fx-background-color: #c0392b; -fx-text-fill: white;" text="Eliminar Registro" />
+                           </children>
+                        </VBox>
+                     </children>
+                  </VBox>
+               </content>
+            </ScrollPane>
+        </items>
+      </SplitPane>
+   </center>
+>>>>>>> 2d1c65d (fix: arreglo base de datos)
 </BorderPane>
