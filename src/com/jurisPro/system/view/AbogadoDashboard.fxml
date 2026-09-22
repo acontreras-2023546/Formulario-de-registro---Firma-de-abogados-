@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToolBar?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane prefHeight="700.0" prefWidth="1050.0"
+            xmlns="http://javafx.com/javafx/21.0.1"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.jurisPro.system.controller.AbogadoDashboardController">
+
+    <top>
+
+        <ToolBar>
+
+            <items>
+
+                <Label
+                    style="-fx-font-weight: bold; -fx-font-size: 16px;"
+                    text="Portal de Gestión Legal - Clientes" />
+
+                <Pane HBox.hgrow="ALWAYS" />
+
+                <Button
+                    fx:id="btnLogout"
+                    onMouseClicked="#OnLogout"
+                    text="Cerrar Sesión" />
+
+            </items>
+
+        </ToolBar>
+
+    </top>
+
+    <center>
+
+        <SplitPane dividerPositions="0.55">
+
+            <items>
+
+                <!-- TABLA -->
+
+                <VBox spacing="10">
+
+                    <padding>
+
+                        <Insets
+                            bottom="10"
+                            left="10"
+                            right="10"
+                            top="10" />
+
+                    </padding>
+
+                    <children>
+
+                        <Label
+                            style="-fx-font-weight: bold;"
+                            text="Clientes Registrados" />
+
+                        <TableView
+                            fx:id="tblClientes"
+                            VBox.vgrow="ALWAYS">
+
+                            <columns>
+
+                                <TableColumn
+                                    fx:id="colDpi"
+                                    prefWidth="100"
+                                    text="DPI" />
+
+                                <TableColumn
+                                    fx:id="colNombre"
+                                    prefWidth="100"
+                                    text="Nombre" />
+
+                                <TableColumn
+                                    fx:id="colApellido"
+                                    prefWidth="100"
+                                    text="Apellido" />
+
+                                <TableColumn
+                                    fx:id="colNit"
+                                    prefWidth="100"
+                                    text="NIT" />
+
+                                <TableColumn
+                                    fx:id="colTelefono"
+                                    prefWidth="100"
+                                    text="Teléfono" />
+
+                            </columns>
+
+                        </TableView>
+
+                    </children>
+
+                </VBox>
+
+
+                <!-- FORMULARIO -->
+
+                <VBox spacing="8">
+
+                    <padding>
+
+                        <Insets
+                            bottom="15"
+                            left="15"
+                            right="15"
+                            top="15" />
+
+                    </padding>
+
+                    <children>
+
+                        <Label
+                            style="-fx-font-weight: bold; -fx-font-size: 15px;"
+                            text="Datos del Cliente" />
+
+                        <Separator />
+
+                        <Label text="DPI:" />
+
+                        <TextField
+                            fx:id="txtDpi"
+                            promptText="Ingrese DPI" />
+
+                        <Label text="NIT:" />
+
+                        <TextField
+                            fx:id="txtNit"
+                            promptText="Ingrese NIT" />
+
+                        <Label text="Nombre:" />
+
+                        <TextField
+                            fx:id="txtNombre"
+                            promptText="Ingrese nombre" />
+
+                        <Label text="Apellido:" />
+
+                        <TextField
+                            fx:id="txtApellido"
+                            promptText="Ingrese apellido" />
+
+                        <Label text="Teléfono:" />
+
+                        <TextField
+                            fx:id="txtTelefono"
+                            promptText="Ingrese teléfono" />
+
+                        <Label text="Dirección:" />
+
+                        <TextField
+                            fx:id="txtDireccion"
+                            promptText="Ingrese dirección" />
+
+                        <Label text="Estado del Caso:" />
+
+                        <ComboBox
+                            fx:id="cmbEstadoCaso"
+                            prefWidth="250" />
+
+                        <Label text="Informe de Avance:" />
+
+                        <TextArea
+                            fx:id="txtInformeCaso"
+                            prefHeight="80"
+                            wrapText="true" />
+
+                        <Separator />
+
+                        <HBox
+                            alignment="CENTER"
+                            spacing="10">
+
+                            <children>
+
+                                <Button
+                                    fx:id="btnCrearCliente"
+                                    onMouseClicked="#OnCreate"
+                                    text="Nuevo" />
+
+                                <Button
+                                    fx:id="btnGuardarCaso"
+                                    onMouseClicked="#OnSave"
+                                    text="Guardar Cambios" />
+
+                                <Button
+                                    fx:id="btnEliminarCliente"
+                                    onMouseClicked="#OnDelete"
+                                    text="Eliminar" />
+
+                            </children>
+
+                        </HBox>
+
+                    </children>
+
+                </VBox>
+
+            </items>
+
+        </SplitPane>
+
+    </center>
+
+</BorderPane>

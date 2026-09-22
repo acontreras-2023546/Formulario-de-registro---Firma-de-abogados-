@@ -6,7 +6,7 @@
 <BorderPane prefHeight="600.0" prefWidth="900.0" 
             xmlns="http://javafx.com/javafx/8" 
             xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="com.jurispro.system.controller.AdminDashboardController">
+            fx:controller="com.jurisPro.system.controller.AdminDashboardController">
     <top>
         <ToolBar BorderPane.alignment="CENTER">
             <items>

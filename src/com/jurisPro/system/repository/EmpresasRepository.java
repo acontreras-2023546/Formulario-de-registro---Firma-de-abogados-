@@ -1,8 +1,8 @@
-package com.jurispro.system.repository;
+package com.jurisPro.system.repository;
 
 import com.jurisPro.system.config.Conexion;
-import com.jurispro.system.model.Abogado;
-import com.jurispro.system.model.Empresas;
+import com.jurisPro.system.model.Abogado;
+import com.jurisPro.system.model.Empresas;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.ResultSet;

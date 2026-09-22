@@ -1,4 +1,4 @@
-package com.jurispro.system.model;
+package com.jurisPro.system.model;
 
 public class Empresas {
 

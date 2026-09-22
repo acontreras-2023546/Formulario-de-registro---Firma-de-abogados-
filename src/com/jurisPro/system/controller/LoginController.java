@@ -1,9 +1,9 @@
-package com.jurispro.system.controller;
+package com.jurisPro.system.controller;
 
 import com.jurisPro.system.model.Rol;
-import com.jurispro.system.repository.AbogadoRepository;
-import com.jurispro.system.repository.ClienteRepository;
-import com.jurispro.system.repository.EmpresasRepository;
+import com.jurisPro.system.repository.AbogadoRepository;
+import com.jurisPro.system.repository.ClienteRepository;
+import com.jurisPro.system.repository.EmpresasRepository;
 import com.jurisPro.system.repository.UsuarioRepository;
 import java.io.IOException;
 import javafx.collections.FXCollections;
@@ -21,12 +21,9 @@ import javafx.stage.Stage;
 
 public class LoginController {
 
-    @FXML
-    private TextField txtUsuario;
-    @FXML
-    private PasswordField txtPassword;
-    @FXML
-    private ComboBox<Rol> cmbRol;
+    @FXML private TextField txtUsuario;
+    @FXML private PasswordField txtPassword;
+    @FXML private ComboBox<Rol> cmbRol;
 
     private final UsuarioRepository usuarioRepository = new UsuarioRepository();
     private final ClienteRepository clienteRepository = new ClienteRepository();
@@ -44,94 +41,67 @@ public class LoginController {
         String password = txtPassword.getText().trim();
         Rol rolSeleccionado = cmbRol.getValue();
 
-        // 1. Validar campos vacíos
         if (usuario.isEmpty() || password.isEmpty() || rolSeleccionado == null) {
-            mostrarAlerta("Campos Incompletos", "Atención", "Por favor ingrese usuario, contraseña y seleccione su rol.", Alert.AlertType.WARNING);
+            mostrarAlerta("Campos Incompletos", "Atención",
+                    "Ingrese usuario, contraseña y seleccione su rol.", Alert.AlertType.WARNING);
             return;
         }
 
-        // 2. Validación de credenciales unificada en BD según el Rol
-        Rol rolBD = autenticarUsuarioSegunRol(usuario, password, rolSeleccionado);
-
-        if (rolBD == null) {
-            mostrarAlerta("Acceso Denegado", "Credenciales Incorrectas", "El usuario, contraseña o rol seleccionado son incorrectos.", Alert.AlertType.ERROR);
+        Rol rolAutenticado = autenticarUsuarioSegunRol(usuario, password, rolSeleccionado);
+        if (rolAutenticado == null) {
+            mostrarAlerta("Acceso Denegado", "Credenciales Incorrectas",
+                    "El usuario, contraseña o rol seleccionado son incorrectos.", Alert.AlertType.ERROR);
             return;
         }
 
-        // 3. Redirección según el rol autenticado
-        if (rolBD == Rol.ADMINISTRADOR || rolBD.name().equalsIgnoreCase("ADMIN")) {
-            abrirAdminDashboard(event);
-        } else {
-            mostrarAlerta("Éxito", "Sesión Iniciada", "Bienvenido/a al sistema.", Alert.AlertType.INFORMATION);
-        }
+        abrirDashboard(event, rolAutenticado);
     }
 
-    /**
-     * Búsqueda flexible según el rol seleccionado por el usuario.
-     */
     private Rol autenticarUsuarioSegunRol(String usuario, String password, Rol rolEsperado) {
-        // Validación para Administradores o Usuarios generales
-        Rol rolAdmin = usuarioRepository.autenticar(usuario, password);
-        if (rolAdmin != null && rolAdmin == rolEsperado) {
-            return rolAdmin;
+        Rol rolBD = usuarioRepository.autenticar(usuario, password);
+        if (rolBD != null && rolBD == rolEsperado) {
+            return rolBD;
         }
 
-        // Validación para Clientes (Busca por DPI o NIT)
         if (rolEsperado == Rol.CLIENTE) {
-            boolean existeCliente = clienteRepository.autenticarCliente(usuario, password);
-            if (existeCliente) {
-                return Rol.CLIENTE;
-            }
-
-            boolean existeEmpresa = empresaRepository.autenticarEmpresa(usuario, password);
-            if (existeEmpresa) {
+            if (clienteRepository.autenticarCliente(usuario, password) ||
+                empresaRepository.autenticarEmpresa(usuario, password)) {
                 return Rol.CLIENTE;
             }
         }
 
-        // Validación para Abogados (Busca por Nombre / ID)
-        if (rolEsperado == Rol.ABOGADO) {
-            boolean existeAbogado = abogadoRepository.autenticarAbogado(usuario, password);
-            if (existeAbogado) {
-                return Rol.ABOGADO;
-            }
+        if (rolEsperado == Rol.ABOGADO && abogadoRepository.autenticarAbogado(usuario, password)) {
+            return Rol.ABOGADO;
         }
 
         return null;
     }
 
-    private void abrirAdminDashboard(ActionEvent event) {
-        try {
-            String ruta = "/com/jurispro/system/view/AdminDashboard.fxml";
-            java.net.URL fxmlLocation = getClass().getResource(ruta);
-
-            if (fxmlLocation == null) {
-                System.err.println("=== ERROR DE RUTA ===");
-                System.err.println("NO SE ENCONTRÓ EN: " + ruta);
-
-                java.net.URL viewFolder = getClass().getResource("/com/jurispro/system/view/");
-                if (viewFolder != null) {
-                    System.err.println("La carpeta '/com/jurispro/system/view/' SÍ existe.");
-                    java.io.File carpetaView = new java.io.File(viewFolder.toURI());
-                    System.err.println("Archivos reales en la carpeta view: " + java.util.Arrays.toString(carpetaView.list()));
-                }
-
-                mostrarAlerta("Error", "Ruta no encontrada", "Revisa la consola de NetBeans para ver los archivos encontrados.", Alert.AlertType.ERROR);
+    private void abrirDashboard(ActionEvent event, Rol rol) {
+        String archivoFXML;
+        switch (rol) {
+            case ADMINISTRADOR -> archivoFXML = "/com/jurisPro/system/view/AdminDashboard.fxml";
+            case ABOGADO -> archivoFXML = "/com/jurisPro/system/view/AbogadoDashboard.fxml";
+            case CLIENTE -> {
+                mostrarAlerta("Acceso correcto", "Cliente",
+                        "El acceso de clientes está autenticado, pero su vista todavía no está disponible.",
+                        Alert.AlertType.INFORMATION);
                 return;
             }
+            default -> { return; }
+        }
 
-            FXMLLoader loader = new FXMLLoader(fxmlLocation);
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(archivoFXML));
             Parent root = loader.load();
-
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             stage.setScene(new Scene(root));
-            stage.setTitle("JurisPro - Panel de Administración");
-            stage.centerOnScreen();
             stage.show();
-
-        } catch (Exception e) {
+        } catch (IOException | RuntimeException e) {
             e.printStackTrace();
-            mostrarAlerta("Error", "Error al cargar vista", e.getMessage(), Alert.AlertType.ERROR);
+            mostrarAlerta("Error", "No se pudo abrir el Dashboard",
+                    e.getMessage() == null ? "Error desconocido." : e.getMessage(),
+                    Alert.AlertType.ERROR);
         }
     }
 
