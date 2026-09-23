@@ -180,20 +180,32 @@ BEGIN
     WHERE Id_abogado = p_id_abogado;
 END //
 
-DROP PROCEDURE IF EXISTS sp_autenticar_abogado //
+DROP PROCEDURE IF EXISTS sp_autenticar_abogado;
+
+DELIMITER //
 
 CREATE PROCEDURE sp_autenticar_abogado(
     IN p_username VARCHAR(50),
     IN p_password VARCHAR(100)
 )
 BEGIN
-    SELECT Id_abogado, name, lastname, especiality, telephone, Id_socio, id_usuario
+    SELECT
+        Id_abogado,
+        name,
+        lastname,
+        especiality,
+        telephone,
+        Id_socio,
+        id_usuario,
+        username,
+        password
     FROM Abogados
     WHERE username = p_username
       AND password = p_password;
 END //
 
 DELIMITER ;
+
 -- =============================================================================
 -- 4. TABLA Y PROCEDIMIENTOS DE CASOS
 -- =============================================================================

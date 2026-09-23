@@ -1,55 +1,34 @@
+
 package com.jurisPro.system.controller;
 
+import com.jurisPro.system.model.Abogado;
 import com.jurisPro.system.model.Cliente;
 import com.jurisPro.system.service.ClienteService;
-import com.jurisPro.system.service.CasoService;
 
+import java.io.IOException;
+import java.net.URL;
+import java.util.List;
+import java.util.ResourceBundle;
+
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
+import javafx.fxml.FXMLLoader;
+import javafx.fxml.Initializable;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 
-import java.time.LocalDate;
-
-public class AbogadoDashboardController {
-
-    @FXML
-    private Button btnLogout;
-
-    @FXML
-    private Button btnCrearCliente;
-
-    @FXML
-    private Button btnGuardarCaso;
-
-    @FXML
-    private Button btnEliminarCliente;
-
-    @FXML
-    private TextField txtDpi;
-
-    @FXML
-    private TextField txtNit;
-
-    @FXML
-    private TextField txtNombre;
-
-    @FXML
-    private TextField txtApellido;
-    
-    
-    @FXML
-    private TextField txtTelefono;
-
-    @FXML
-    private TextField txtDireccion;
-
-    @FXML
-    private ComboBox<String> cmbEstadoCaso;
-
-    @FXML
-    private TextArea txtInformeCaso;
+public class AbogadoDashboardController implements Initializable {
 
     @FXML
     private TableView<Cliente> tblClientes;
@@ -62,480 +41,595 @@ public class AbogadoDashboardController {
 
     @FXML
     private TableColumn<Cliente, String> colApellido;
-    
+
     @FXML
     private TableColumn<Cliente, String> colNit;
 
     @FXML
     private TableColumn<Cliente, String> colTelefono;
-    
 
+    @FXML
+    private TextField txtDpi;
+
+    @FXML
+    private TextField txtNit;
+
+    @FXML
+    private TextField txtNombre;
+
+    @FXML
+    private TextField txtApellido;
+
+    @FXML
+    private TextField txtTelefono;
+
+    @FXML
+    private TextField txtDireccion;
+
+    @FXML
+    private ComboBox<String> cmbEstadoCaso;
+
+    @FXML
+    private TextArea txtInformeCaso;
 
     private final ClienteService clienteService =
             new ClienteService();
 
-    private final CasoService casoService =
-            new CasoService();
+    private Abogado abogadoLogueado;
 
+    private final ObservableList<Cliente> listaClientes =
+            FXCollections.observableArrayList();
 
     private Cliente clienteSeleccionado;
 
-
-    @FXML
-    public void initialize() {
-
-        cmbEstadoCaso.setItems(
-                FXCollections.observableArrayList(
-                        "EN PROCESO",
-                        "COMPLETO"
-                )
-        );
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
 
         configurarTabla();
+        configurarEstadoCaso();
 
-        cargarClientes();
+        if (tblClientes != null) {
 
-        tblClientes.getSelectionModel()
-                .selectedItemProperty()
-                .addListener((observable, anterior, nuevo) -> {
+            tblClientes.getSelectionModel()
+                    .selectedItemProperty()
+                    .addListener((obs, oldValue, newValue) -> {
 
-                    if (nuevo != null) {
+                        if (newValue != null) {
 
-                        clienteSeleccionado = nuevo;
+                            clienteSeleccionado = newValue;
 
-                        cargarClienteEnFormulario(nuevo);
-                    }
-
-                });
+                            cargarClienteEnFormulario(newValue);
+                        }
+                    });
+        }
     }
 
+    public void setAbogadoLogueado(Abogado abogado) {
+
+        this.abogadoLogueado = abogado;
+
+        if (abogadoLogueado != null) {
+
+            cargarClientes();
+        }
+    }
+
+    private void configurarEstadoCaso() {
+
+        if (cmbEstadoCaso != null) {
+
+            cmbEstadoCaso.setItems(
+                    FXCollections.observableArrayList(
+                            "EN PROCESO",
+                            "FINALIZADO",
+                            "PENDIENTE"
+                    )
+            );
+
+            cmbEstadoCaso.setValue("EN PROCESO");
+        }
+    }
 
     private void configurarTabla() {
 
-        colDpi.setCellValueFactory(
-                data -> new javafx.beans.property.SimpleStringProperty(
-                        data.getValue().getDpi()
-                )
-        );
+        if (colDpi != null) {
 
-        colNombre.setCellValueFactory(
-                data -> new javafx.beans.property.SimpleStringProperty(
-                        data.getValue().getNombre()
-                )
-        );
+            colDpi.setCellValueFactory(
+                    data -> new SimpleStringProperty(
+                            data.getValue().getDpi()
+                    )
+            );
+        }
 
-        colApellido.setCellValueFactory(
-                data -> new javafx.beans.property.SimpleStringProperty(
-                        data.getValue().getApellido()
-                )
-        );
+        if (colNombre != null) {
 
-        colNit.setCellValueFactory(
-                data -> new javafx.beans.property.SimpleStringProperty(
-                        data.getValue().getNit()
-                )
-        );
+            colNombre.setCellValueFactory(
+                    data -> new SimpleStringProperty(
+                            data.getValue().getNombre()
+                    )
+            );
+        }
 
-        colTelefono.setCellValueFactory(
-                data -> new javafx.beans.property.SimpleStringProperty(
-                        data.getValue().getTelefono()
-                )
-        );
+        if (colApellido != null) {
+
+            colApellido.setCellValueFactory(
+                    data -> new SimpleStringProperty(
+                            data.getValue().getApellido()
+                    )
+            );
+        }
+
+        if (colNit != null) {
+
+            colNit.setCellValueFactory(
+                    data -> new SimpleStringProperty(
+                            data.getValue().getNit()
+                    )
+            );
+        }
+
+        if (colTelefono != null) {
+
+            colTelefono.setCellValueFactory(
+                    data -> new SimpleStringProperty(
+                            data.getValue().getTelefono()
+                    )
+            );
+        }
+
+        if (tblClientes != null) {
+
+            tblClientes.setItems(listaClientes);
+        }
     }
-
 
     private void cargarClientes() {
 
-        tblClientes.setItems(
-                FXCollections.observableArrayList(
-                        clienteService.obtenerClientes()
-                )
-        );
-    }
-
-
-    private void cargarClienteEnFormulario(Cliente cliente) {
-
-        txtDpi.setText(cliente.getDpi());
-        txtNit.setText(cliente.getNit());
-        txtNombre.setText(cliente.getNombre());
-        txtApellido.setText(cliente.getApellido());
-        txtTelefono.setText(cliente.getTelefono());
-        txtDireccion.setText(cliente.getDireccion());
-    }
-
-
-    @FXML
-    private void OnCreate(MouseEvent event) {
-
-        clienteSeleccionado = null;
-
-        limpiarFormulario();
-
-        txtDpi.requestFocus();
-    }
-
-
-    @FXML
-    private void OnSave(MouseEvent event) {
-
-        if (!validarCampos()) {
+        if (abogadoLogueado == null) {
             return;
         }
 
+        String idAbogado =
+                abogadoLogueado.getIdAbogado();
 
-        if (clienteSeleccionado == null) {
-
-            crearCliente();
-
-        } else {
-
-            actualizarCliente();
-        }
-    }
-
-
-    private void crearCliente() {
-
-        /*
-         * IMPORTANTE:
-         * Este ID debe corresponder a un abogado
-         * existente en la tabla Abogados.
-         */
-
-        String idAbogado = obtenerIdAbogado();
-
-
-        if (idAbogado == null) {
+        if (idAbogado == null || idAbogado.isEmpty()) {
 
             mostrarAlerta(
+                    Alert.AlertType.ERROR,
                     "Error",
-                    "Abogado no encontrado",
-                    "No existe un abogado asociado para crear el caso.",
-                    Alert.AlertType.ERROR
+                    "El abogado no tiene un ID válido."
             );
 
             return;
         }
 
+        List<Cliente> clientes =
+                clienteService.obtenerClientesPorAbogado(
+                        idAbogado
+                );
 
-        String estado = cmbEstadoCaso.getValue();
+        listaClientes.setAll(clientes);
 
-        String informe = txtInformeCaso.getText().trim();
+        if (tblClientes != null) {
 
-        String fecha = LocalDate.now().toString();
+            tblClientes.refresh();
+        }
+    }
 
-        String descripcion =
-                txtNombre.getText().trim()
-                + " "
-                + txtApellido.getText().trim();
-       
+    /*
+     * IMPORTANTE:
+     * El FXML utiliza onMouseClicked.
+     * Por eso estos métodos reciben MouseEvent.
+     */
 
+    @FXML
+    public void OnCreate(MouseEvent event) {
 
-        String idCaso = casoService.crearCaso(
-                descripcion,
-                estado,
-                informe,
-                fecha,
-                idAbogado
-        );
-
-
-        if (idCaso == null) {
+        if (abogadoLogueado == null) {
 
             mostrarAlerta(
+                    Alert.AlertType.ERROR,
                     "Error",
-                    "No se pudo crear el caso",
-                    "El caso no pudo ser registrado.",
-                    Alert.AlertType.ERROR
+                    "No se ha identificado al abogado que inició sesión."
             );
 
             return;
         }
 
+        String dpi =
+                txtDpi.getText().trim();
 
-        Cliente cliente = new Cliente();
+        String nit =
+                txtNit.getText().trim();
 
-        cliente.setDpi(txtDpi.getText().trim());
-        cliente.setNit(txtNit.getText().trim());
-        cliente.setNombre(txtNombre.getText().trim());
-        cliente.setApellido(txtApellido.getText().trim());
-        cliente.setTelefono(txtTelefono.getText().trim());
-        cliente.setDireccion(txtDireccion.getText().trim());
+        String nombre =
+                txtNombre.getText().trim();
 
-        cliente.setIdCaso(idCaso);
+        String apellido =
+                txtApellido.getText().trim();
 
-        cliente.setIdUsuario(null);
+        String telefono =
+                txtTelefono.getText().trim();
 
+        String direccion =
+                txtDireccion.getText().trim();
 
-        boolean creado =
-                clienteService.crearCliente(cliente);
-
-
-        if (creado) {
+        if (dpi.isEmpty()) {
 
             mostrarAlerta(
-                    "Cliente creado",
-                    "Operación exitosa",
-                    "El cliente fue registrado correctamente.",
-                    Alert.AlertType.INFORMATION
+                    Alert.AlertType.WARNING,
+                    "Validación",
+                    "El DPI es obligatorio."
+            );
+
+            return;
+        }
+
+        if (nit.isEmpty()) {
+
+            mostrarAlerta(
+                    Alert.AlertType.WARNING,
+                    "Validación",
+                    "El NIT es obligatorio."
+            );
+
+            return;
+        }
+
+        if (nombre.isEmpty()) {
+
+            mostrarAlerta(
+                    Alert.AlertType.WARNING,
+                    "Validación",
+                    "El nombre es obligatorio."
+            );
+
+            return;
+        }
+
+        if (apellido.isEmpty()) {
+
+            mostrarAlerta(
+                    Alert.AlertType.WARNING,
+                    "Validación",
+                    "El apellido es obligatorio."
+            );
+
+            return;
+        }
+
+        if (telefono.isEmpty()) {
+
+            mostrarAlerta(
+                    Alert.AlertType.WARNING,
+                    "Validación",
+                    "El teléfono es obligatorio."
+            );
+
+            return;
+        }
+
+        if (direccion.isEmpty()) {
+
+            mostrarAlerta(
+                    Alert.AlertType.WARNING,
+                    "Validación",
+                    "La dirección es obligatoria."
+            );
+
+            return;
+        }
+
+        Cliente nuevoCliente =
+                new Cliente();
+
+        nuevoCliente.setDpi(dpi);
+        nuevoCliente.setNit(nit);
+        nuevoCliente.setNombre(nombre);
+        nuevoCliente.setApellido(apellido);
+        nuevoCliente.setTelefono(telefono);
+        nuevoCliente.setDireccion(direccion);
+
+        // Asignamos el abogado que inició sesión
+        nuevoCliente.setAbogado(abogadoLogueado);
+
+        boolean exito =
+                clienteService.crearCliente(
+                        nuevoCliente
+                );
+
+        if (exito) {
+
+            mostrarAlerta(
+                    Alert.AlertType.INFORMATION,
+                    "Éxito",
+                    "Cliente creado correctamente."
             );
 
             cargarClientes();
 
             limpiarFormulario();
 
-            clienteSeleccionado = null;
-
         } else {
 
             mostrarAlerta(
+                    Alert.AlertType.ERROR,
                     "Error",
-                    "No se pudo crear el cliente",
-                    "El cliente no pudo ser registrado.",
-                    Alert.AlertType.ERROR
+                    "No se pudo crear el cliente."
             );
         }
     }
-
-
-    private void actualizarCliente() {
-
-        Cliente cliente = new Cliente();
-
-        cliente.setDpi(txtDpi.getText().trim());
-        cliente.setNit(txtNit.getText().trim());
-        cliente.setNombre(txtNombre.getText().trim());
-        cliente.setApellido(txtApellido.getText().trim());
-        cliente.setTelefono(txtTelefono.getText().trim());
-        cliente.setDireccion(txtDireccion.getText().trim());
-
-        cliente.setIdCaso(
-                clienteSeleccionado.getIdCaso()
-        );
-
-        cliente.setIdUsuario(
-                clienteSeleccionado.getIdUsuario()
-        );
-
-
-        boolean actualizado =
-                clienteService.actualizarCliente(cliente);
-
-
-        if (actualizado) {
-
-            mostrarAlerta(
-                    "Cliente actualizado",
-                    "Operación exitosa",
-                    "Los datos fueron actualizados correctamente.",
-                    Alert.AlertType.INFORMATION
-            );
-
-            cargarClientes();
-
-            limpiarFormulario();
-
-            clienteSeleccionado = null;
-
-        } else {
-
-            mostrarAlerta(
-                    "Error",
-                    "No se pudo actualizar",
-                    "No fue posible actualizar el cliente.",
-                    Alert.AlertType.ERROR
-            );
-        }
-    }
-
 
     @FXML
-    private void OnDelete(MouseEvent event) {
+    public void OnSave(MouseEvent event) {
 
         if (clienteSeleccionado == null) {
 
             mostrarAlerta(
+                    Alert.AlertType.WARNING,
                     "Atención",
-                    "Cliente no seleccionado",
-                    "Seleccione un cliente de la tabla.",
-                    Alert.AlertType.WARNING
+                    "Seleccione un cliente para actualizar."
             );
 
             return;
         }
 
-
-        Alert confirmacion = new Alert(
-                Alert.AlertType.CONFIRMATION
-        );
-
-        confirmacion.setTitle("Eliminar cliente");
-
-        confirmacion.setHeaderText(
-                "¿Desea eliminar este cliente?"
-        );
-
-        confirmacion.setContentText(
-                clienteSeleccionado.getNombre()
-                + " "
-                + clienteSeleccionado.getApellido()
-        );
-
-
-        if (confirmacion.showAndWait().orElse(ButtonType.CANCEL)
-                == ButtonType.OK) {
-
-            boolean eliminado =
-                    clienteService.eliminarCliente(
-                            clienteSeleccionado.getDpi()
-                    );
-
-
-            if (eliminado) {
-
-                /*
-                 * Como Clientes tiene ON DELETE CASCADE
-                 * solamente eliminar el cliente NO elimina
-                 * el caso.
-                 *
-                 * Si quieres eliminar también el caso,
-                 * se hace después.
-                 */
-
-                if (clienteSeleccionado.getIdCaso() != null) {
-
-                    casoService.eliminarCaso(
-                            clienteSeleccionado.getIdCaso()
-                    );
-                }
-
-
-                mostrarAlerta(
-                        "Cliente eliminado",
-                        "Operación exitosa",
-                        "El cliente fue eliminado correctamente.",
-                        Alert.AlertType.INFORMATION
-                );
-
-
-                cargarClientes();
-
-                limpiarFormulario();
-
-                clienteSeleccionado = null;
-
-            } else {
-
-                mostrarAlerta(
-                        "Error",
-                        "No se pudo eliminar",
-                        "No fue posible eliminar el cliente.",
-                        Alert.AlertType.ERROR
-                );
-            }
-        }
-    }
-
-
-    private boolean validarCampos() {
-
-        if (txtDpi.getText().trim().isEmpty()
-                || txtNit.getText().trim().isEmpty()
-                || txtNombre.getText().trim().isEmpty()
-                || txtApellido.getText().trim().isEmpty()
-                || txtTelefono.getText().trim().isEmpty()
-                || txtDireccion.getText().trim().isEmpty()
-                || cmbEstadoCaso.getValue() == null) {
+        if (abogadoLogueado == null) {
 
             mostrarAlerta(
-                    "Campos incompletos",
-                    "Faltan datos",
-                    "Complete todos los campos obligatorios.",
-                    Alert.AlertType.WARNING
+                    Alert.AlertType.ERROR,
+                    "Error",
+                    "No se ha identificado al abogado."
             );
 
-            return false;
+            return;
         }
 
-        return true;
+        clienteSeleccionado.setNit(
+                txtNit.getText().trim()
+        );
+
+        clienteSeleccionado.setNombre(
+                txtNombre.getText().trim()
+        );
+
+        clienteSeleccionado.setApellido(
+                txtApellido.getText().trim()
+        );
+
+        clienteSeleccionado.setTelefono(
+                txtTelefono.getText().trim()
+        );
+
+        clienteSeleccionado.setDireccion(
+                txtDireccion.getText().trim()
+        );
+
+        // Mantener el abogado actual
+        clienteSeleccionado.setAbogado(
+                abogadoLogueado
+        );
+
+        boolean exito =
+                clienteService.actualizarCliente(
+                        clienteSeleccionado
+                );
+
+        if (exito) {
+
+            mostrarAlerta(
+                    Alert.AlertType.INFORMATION,
+                    "Éxito",
+                    "Cliente actualizado correctamente."
+            );
+
+            cargarClientes();
+
+            limpiarFormulario();
+
+        } else {
+
+            mostrarAlerta(
+                    Alert.AlertType.ERROR,
+                    "Error",
+                    "No se pudo actualizar el cliente."
+            );
+        }
     }
 
+    @FXML
+    public void OnDelete(MouseEvent event) {
+
+        if (clienteSeleccionado == null) {
+
+            mostrarAlerta(
+                    Alert.AlertType.WARNING,
+                    "Atención",
+                    "Seleccione un cliente para eliminar."
+            );
+
+            return;
+        }
+
+        boolean exito =
+                clienteService.eliminarCliente(
+                        clienteSeleccionado.getDpi()
+                );
+
+        if (exito) {
+
+            mostrarAlerta(
+                    Alert.AlertType.INFORMATION,
+                    "Éxito",
+                    "Cliente eliminado correctamente."
+            );
+
+            cargarClientes();
+
+            limpiarFormulario();
+
+        } else {
+
+            mostrarAlerta(
+                    Alert.AlertType.ERROR,
+                    "Error",
+                    "No se pudo eliminar el cliente."
+            );
+        }
+    }
+
+    private void cargarClienteEnFormulario(
+            Cliente cliente) {
+
+        if (cliente == null) {
+            return;
+        }
+
+        txtDpi.setText(
+                cliente.getDpi()
+        );
+
+        txtNit.setText(
+                cliente.getNit()
+        );
+
+        txtNombre.setText(
+                cliente.getNombre()
+        );
+
+        txtApellido.setText(
+                cliente.getApellido()
+        );
+
+        txtTelefono.setText(
+                cliente.getTelefono()
+        );
+
+        txtDireccion.setText(
+                cliente.getDireccion()
+        );
+
+        if (cmbEstadoCaso != null) {
+
+            cmbEstadoCaso.setValue(
+                    "EN PROCESO"
+            );
+        }
+
+        if (txtInformeCaso != null) {
+
+            txtInformeCaso.clear();
+        }
+    }
 
     private void limpiarFormulario() {
 
-        txtDpi.clear();
-        txtNit.clear();
-        txtNombre.clear();
-        txtApellido.clear();
-        txtTelefono.clear();
-        txtDireccion.clear();
+        if (txtDpi != null) {
+            txtDpi.clear();
+        }
 
-        cmbEstadoCaso.setValue(null);
+        if (txtNit != null) {
+            txtNit.clear();
+        }
 
-        txtInformeCaso.clear();
+        if (txtNombre != null) {
+            txtNombre.clear();
+        }
+
+        if (txtApellido != null) {
+            txtApellido.clear();
+        }
+
+        if (txtTelefono != null) {
+            txtTelefono.clear();
+        }
+
+        if (txtDireccion != null) {
+            txtDireccion.clear();
+        }
+
+        if (cmbEstadoCaso != null) {
+
+            cmbEstadoCaso.setValue(
+                    "EN PROCESO"
+            );
+        }
+
+        if (txtInformeCaso != null) {
+
+            txtInformeCaso.clear();
+        }
+
+        clienteSeleccionado = null;
+
+        if (tblClientes != null) {
+
+            tblClientes.getSelectionModel()
+                    .clearSelection();
+        }
     }
-
-
-    private String obtenerIdAbogado() {
-
-        /*
-         * CAMBIAR ESTE VALOR por el Id_abogado
-         * que tengas en tu base de datos.
-         */
-
-        return "a1";
-    }
-
 
     @FXML
-    private void OnLogout(MouseEvent event) {
+    public void OnLogout(MouseEvent event) {
 
         try {
 
-            javafx.fxml.FXMLLoader loader =
-                    new javafx.fxml.FXMLLoader(
-                            getClass().getResource(
-                                    "/com/jurisPro/system/view/Login.fxml"
-                            )
+            URL fxmlUrl =
+                    getClass().getResource(
+                            "/com/jurisPro/system/view/Login.fxml"
                     );
 
-            javafx.scene.Parent root = loader.load();
+            if (fxmlUrl == null) {
+
+                fxmlUrl =
+                        getClass().getResource(
+                                "/com/jurisPro/system/view/LoginView.fxml"
+                        );
+            }
+
+            if (fxmlUrl == null) {
+
+                throw new IOException(
+                        "No se encontró el archivo de Login."
+                );
+            }
+
+            Parent root =
+                    FXMLLoader.load(fxmlUrl);
 
             Stage stage =
-                    (Stage) btnLogout.getScene().getWindow();
+                    (Stage) ((Node) event.getSource())
+                            .getScene()
+                            .getWindow();
 
             stage.setScene(
-                    new javafx.scene.Scene(root)
+                    new Scene(root)
             );
 
             stage.show();
 
-        } catch (Exception e) {
-
-            e.printStackTrace();
+        } catch (IOException e) {
 
             mostrarAlerta(
+                    Alert.AlertType.ERROR,
                     "Error",
-                    "No se pudo cerrar sesión",
-                    "Ocurrió un error al regresar al login.",
-                    Alert.AlertType.ERROR
+                    "No se pudo cerrar la sesión: "
+                    + e.getMessage()
             );
         }
     }
 
-
     private void mostrarAlerta(
+            Alert.AlertType tipo,
             String titulo,
-            String cabecera,
-            String contenido,
-            Alert.AlertType tipo) {
+            String mensaje) {
 
-        Alert alert = new Alert(tipo);
+        Alert alert =
+                new Alert(tipo);
 
         alert.setTitle(titulo);
-        alert.setHeaderText(cabecera);
-        alert.setContentText(contenido);
+        alert.setHeaderText(null);
+        alert.setContentText(mensaje);
 
         alert.showAndWait();
     }
