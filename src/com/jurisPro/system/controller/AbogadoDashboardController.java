@@ -418,97 +418,104 @@ public class AbogadoDashboardController implements Initializable {
         }
     }
 
-@FXML
-public void OnSave(MouseEvent event) {
+    @FXML
+    public void OnSave(MouseEvent event) {
 
-    if (clienteSeleccionado == null) {
+        if (clienteSeleccionado == null) {
 
-        mostrarAlerta(
-                Alert.AlertType.WARNING,
-                "Validación",
-                "Debe seleccionar un cliente."
+            mostrarAlerta(
+                    Alert.AlertType.WARNING,
+                    "Atención",
+                    "Seleccione un cliente para actualizar."
+            );
+
+            return;
+        }
+
+        if (abogadoLogueado == null) {
+
+            mostrarAlerta(
+                    Alert.AlertType.ERROR,
+                    "Error",
+                    "No se ha identificado al abogado."
+            );
+
+            return;
+        }
+
+        clienteSeleccionado.setNit(
+                txtNit.getText().trim()
         );
 
-        return;
-    }
-
-
-    if (abogadoLogueado == null) {
-
-        mostrarAlerta(
-                Alert.AlertType.ERROR,
-                "Error",
-                "No se ha identificado al abogado."
+        clienteSeleccionado.setNombre(
+                txtNombre.getText().trim()
         );
 
-        return;
-    }
-
-
-    String estado =
-            cmbEstadoCaso.getValue();
-
-    String informe =
-            txtInformeCaso.getText().trim();
-
-
-    if (estado == null || estado.isBlank()) {
-
-        mostrarAlerta(
-                Alert.AlertType.WARNING,
-                "Validación",
-                "Debe seleccionar un estado."
+        clienteSeleccionado.setApellido(
+                txtApellido.getText().trim()
         );
 
-        return;
-    }
+        clienteSeleccionado.setTelefono(
+                txtTelefono.getText().trim()
+        );
 
+        clienteSeleccionado.setDireccion(
+                txtDireccion.getText().trim()
+        );
 
-    String dpi =
-            clienteSeleccionado.getDpi();
+        // Mantener el abogado actual
+        clienteSeleccionado.setAbogado(
+                abogadoLogueado
+        );
 
-    String idAbogado =
-            abogadoLogueado.getIdAbogado();
+        boolean exito =
+                clienteService.actualizarCliente(
+                        clienteSeleccionado
+                );
 
+        if (exito) {
 
-    // ============================================================
-    // GUARDAR ESTADO + INFORME
-    // ============================================================
+            String estado = cmbEstadoCaso.getValue();
+            String informe = txtInformeCaso.getText().trim();
 
-    boolean casoGuardado =
-            casoRepository.guardarActualizacionCliente(
-                    dpi,
-                    idAbogado,
-                    estado,
+            boolean casoGuardado = casoRepository.guardarActualizacionCliente(
+                    clienteSeleccionado.getDpi(),
+                    abogadoLogueado.getIdAbogado(),
+                    estado == null || estado.isBlank() ? "EN PROCESO" : estado,
                     informe
             );
 
+            if (!casoGuardado) {
+                mostrarAlerta(
+                        Alert.AlertType.WARNING,
+                        "Cliente actualizado",
+                        "Los datos del cliente se actualizaron, pero no se pudo guardar la actualización del caso."
+                );
+                cargarClientes();
+                limpiarFormulario();
+                return;
+            }
 
-    if (!casoGuardado) {
+            mostrarAlerta(
+                    Alert.AlertType.INFORMATION,
+                    "Éxito",
+                    informe.isEmpty()
+                            ? "Cliente y estado del caso actualizados correctamente."
+                            : "Cliente actualizado y nuevo informe de avance agregado correctamente."
+            );
 
-        mostrarAlerta(
-                Alert.AlertType.ERROR,
-                "Error",
-                "Los datos del cliente se actualizaron, "
-                + "pero no se pudo guardar la actualización "
-                + "del caso."
-        );
+            cargarClientes();
+            limpiarFormulario();
 
-        return;
+        } else {
+
+            mostrarAlerta(
+                    Alert.AlertType.ERROR,
+                    "Error",
+                    "No se pudo actualizar el cliente."
+            );
+        }
     }
-
-
-    mostrarAlerta(
-            Alert.AlertType.INFORMATION,
-            "Éxito",
-            "Cliente y estado del caso actualizados correctamente."
-    );
-
-
-    // Recargar información
-    cargarClientes();
-}
-
 
     @FXML
     public void OnDelete(MouseEvent event) {

@@ -34,6 +34,7 @@
         <Button
             fx:id="btnLogout"
             text="Cerrar Sesión"
+            onAction="#handleLogout"
             prefHeight="38.0"
             style="-fx-background-color: #c0392b; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5px; -fx-cursor: hand;"/>
 
@@ -132,13 +133,13 @@
                 spacing="10.0">
 
                 <Label
-                    text="Estado actual:"
-                    prefWidth="180.0"
+                    text="Estado actual (registrado por el abogado):"
+                    prefWidth="250.0"
                     style="-fx-font-weight: bold; -fx-text-fill: #34495e;"/>
 
                 <Label
                     fx:id="lblEstadoCaso"
-                    text="En proceso"
+                    text="Cargando estado..."
                     style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #2980b9;"/>
 
             </HBox>
@@ -148,13 +149,13 @@
                 spacing="10.0">
 
                 <Label
-                    text="Descripción:"
-                    prefWidth="180.0"
+                    text="Informe de avance del abogado:"
+                    prefWidth="250.0"
                     style="-fx-font-weight: bold; -fx-text-fill: #34495e;"/>
 
                 <Label
                     fx:id="lblDescripcionCaso"
-                    text="Información del estado actual del caso."
+                    text="Aquí aparecerá el último informe de avance guardado por el abogado."
                     wrapText="true"
                     style="-fx-text-fill: #555555;"/>
 
