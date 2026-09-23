@@ -1,6 +1,7 @@
-package com.jurispro.system.repository;
+package com.jurisPro.system.repository;
 
 import com.jurisPro.system.config.Conexion;
+
 import com.jurispro.system.model.Abogado;
 import com.jurispro.system.model.Empresas;
 

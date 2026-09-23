@@ -1,4 +1,4 @@
-package com.jurispro.system.model;
+package com.jurisPro.system.model;
 
 public class Cliente {
 
@@ -9,88 +9,36 @@ public class Cliente {
     private String direccion;
     private String nit;
     private Abogado abogado;
-    private String password;
+
 
     public Cliente() {
     }
 
-    public Cliente(String dpi, String nombre, String apellido, String telefono, String direccion, String nit, Abogado abogado) {
+
         this.dpi = dpi;
         this.nombre = nombre;
         this.apellido = apellido;
         this.telefono = telefono;
         this.direccion = direccion;
-        this.nit = nit;
-        this.password = password;
-        this.abogado = abogado;
+
     }
 
-    public String getDpi() {
-        return dpi;
-    }
+    public String getDpi() { return dpi; }
+    public void setDpi(String dpi) { this.dpi = dpi; }
 
-    public void setDpi(String dpi) {
-        this.dpi = dpi;
-    }
 
-    public String getNombre() {
-        return nombre;
-    }
 
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
+    public String getDireccion() { return direccion; }
+    public void setDireccion(String direccion) { this.direccion = direccion; }
 
-    public String getApellido() {
-        return apellido;
-    }
+    public String getPassword() { return password; }
+    public void setPassword(String password) { this.password = password; }
 
-    public void setApellido(String apellido) {
-        this.apellido = apellido;
-    }
+    public Abogado getAbogado() { return abogado; }
+    public void setAbogado(Abogado abogado) { this.abogado = abogado; }
 
-    public String getTelefono() {
-        return telefono;
-    }
+    public String getIdCaso() { return idCaso; }
+    public void setIdCaso(String idCaso) { this.idCaso = idCaso; }
 
-    public void setTelefono(String telefono) {
-        this.telefono = telefono;
-    }
 
-    public String getDireccion() {
-        return direccion;
-    }
-
-    public void setDireccion(String direccion) {
-        this.direccion = direccion;
-    }
-
-    public String getNit() {
-        return nit;
-    }
-
-    public void setNit(String nit) {
-        this.nit = nit;
-    }
-
-    public Abogado getAbogado() {
-        return abogado;
-    }
-
-    public void setAbogado(Abogado abogado) {
-        this.abogado = abogado;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    @Override
-    public String toString() {
-        return (nombre != null ? nombre : "") + " " + (apellido != null ? apellido : "");
-    }
 }

@@ -1,4 +1,4 @@
-package com.jurispro.system.repository;
+package com.jurisPro.system.repository;
 
 import com.jurisPro.system.config.Conexion;
 import java.sql.CallableStatement;

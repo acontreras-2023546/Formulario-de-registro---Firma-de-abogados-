@@ -28,6 +28,7 @@
         <URL value="@/com/jurispro/system/resources/styles/AdminStyles.css" />
     </stylesheets>
 
+
     <top>
         <ToolBar BorderPane.alignment="CENTER">
             <items>

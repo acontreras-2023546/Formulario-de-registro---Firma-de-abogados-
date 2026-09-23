@@ -1,6 +1,7 @@
-package com.jurispro.system.repository;
+package com.jurisPro.system.repository;
 
 import com.jurisPro.system.config.Conexion;
+
 import com.jurispro.system.model.Abogado;
 import java.sql.CallableStatement;
 import java.sql.Connection;
@@ -9,8 +10,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-
+    
 public class AbogadoRepository {
+
 
     public List<Abogado> obtenerTodos() {
         List<Abogado> abogados = new ArrayList<>();
@@ -31,7 +33,7 @@ public class AbogadoRepository {
                 abogado.setIdUsuario(rs.getString("id_usuario"));
 
                 abogados.add(abogado);
-            }
+            } 
         } catch (SQLException e) {
             System.err.println("Error al listar abogados: " + e.getMessage());
         }
@@ -42,6 +44,9 @@ public class AbogadoRepository {
     public List<Abogado> listarTodos() {
         return obtenerTodos();
     }
+}
+
+
 
     public String obtenerPrimerIdSocio() {
         String sql = "SELECT Id_socio FROM Socio WHERE Id_socio IS NOT NULL AND Id_socio != '' LIMIT 1";
@@ -82,6 +87,7 @@ public class AbogadoRepository {
     }
 
     public boolean guardar(Abogado abogado) {
+
         String sql = "{CALL sp_insert_abogado(?, ?, ?, ?, ?, ?)}";
 
         try (Connection conn = Conexion.getConnection(); 
@@ -129,6 +135,7 @@ public class AbogadoRepository {
             return false;
         }
     }
+}
 
     public boolean eliminar(String idAbogado) {
         String sql = "{CALL sp_delete_abogado(?)}";

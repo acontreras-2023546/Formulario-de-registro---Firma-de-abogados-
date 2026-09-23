@@ -1,8 +1,8 @@
-package com.jurispro.system.repository;
+package com.jurisPro.system.repository;
 
 import com.jurisPro.system.config.Conexion;
-import com.jurispro.system.model.Abogado;
-import com.jurispro.system.model.Cliente;
+import com.jurisPro.system.model.Cliente;
+
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -12,11 +12,17 @@ import java.util.List;
 
 public class ClienteRepository {
 
-    public List<Cliente> obtenerTodos() {
+    public boolean insertar(Cliente cliente) {
+        return guardar(cliente);
+    }
+
+    public List<Cliente> listar() {
         List<Cliente> clientes = new ArrayList<>();
         String sql = "{CALL sp_select_clientes()}";
 
-        try (Connection conn = Conexion.getConnection(); CallableStatement stmt = conn.prepareCall(sql); ResultSet rs = stmt.executeQuery()) {
+        try (Connection conn = Conexion.getConnection();
+             CallableStatement cs = conn.prepareCall(sql);
+             ResultSet rs = cs.executeQuery()) {
 
             while (rs.next()) {
                 Cliente cliente = new Cliente();
@@ -26,44 +32,35 @@ public class ClienteRepository {
                 cliente.setApellido(rs.getString("lastname"));
                 cliente.setTelefono(rs.getString("telephone"));
                 cliente.setDireccion(rs.getString("adress"));
-
-                String idAbogado = rs.getString("Id_abogado");
-                if (idAbogado != null) {
-                    Abogado abogado = new Abogado();
-                    abogado.setIdAbogado(idAbogado);
-                    cliente.setAbogado(abogado);
-                }
-
+                cliente.setIdUsuario(rs.getString("id_usuario"));
                 clientes.add(cliente);
             }
         } catch (SQLException e) {
             System.err.println("Error al listar clientes: " + e.getMessage());
         }
-
         return clientes;
     }
 
     public List<Cliente> listarTodos() {
-        return obtenerTodos();
+        return listar();
+    }
+
+    public List<Cliente> obtenerTodos() {
+        return listar();
     }
 
     public boolean autenticarCliente(String usuario, String password) {
-        String sql = "{CALL sp_autenticar_cliente(?, ?)}";
-
-        try (Connection conn = Conexion.getConnection(); CallableStatement stmt = conn.prepareCall(sql)) {
-
-            stmt.setString(1, usuario);
-            stmt.setString(2, password);
-
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getInt(1) > 0;
-                }
+        for (Cliente cliente : listar()) {
+            boolean coincideUsuario = usuario != null &&
+                    (usuario.equalsIgnoreCase(cliente.getDpi()) ||
+                     (cliente.getNit() != null && usuario.equalsIgnoreCase(cliente.getNit())));
+            if (coincideUsuario && password != null && password.equals(cliente.getPassword())) {
+                return true;
             }
+
         } catch (SQLException e) {
             System.err.println("Error al autenticar cliente: " + e.getMessage());
         }
-
         return false;
     }
 
@@ -71,12 +68,13 @@ public class ClienteRepository {
         // Ahora envía 8 parámetros incluyendo la contraseña
         String sql = "{CALL sp_insert_cliente(?, ?, ?, ?, ?, ?, ?, ?)}";
 
-        try (Connection conn = Conexion.getConnection(); CallableStatement stmt = conn.prepareCall(sql)) {
+        if (cliente == null || cliente.getDpi() == null || cliente.getDpi().trim().isEmpty()) {
+            System.err.println("Error: El DPI del cliente no puede estar vacío.");
+            return false;
+        }
 
-            if (cliente.getDpi() == null || cliente.getDpi().trim().isEmpty()) {
-                System.err.println("Error: El DPI del cliente no puede estar vacío.");
-                return false;
-            }
+        try (Connection conn = Conexion.getConnection();
+             CallableStatement stmt = conn.prepareCall(sql)) {
 
             stmt.setString(1, cliente.getDpi());
             stmt.setString(2, cliente.getNit());
@@ -84,6 +82,7 @@ public class ClienteRepository {
             stmt.setString(4, cliente.getApellido());
             stmt.setString(5, cliente.getTelefono());
             stmt.setString(6, cliente.getDireccion());
+
             stmt.setString(7, cliente.getPassword());
 
             String idAbogado = (cliente.getAbogado() != null) ? cliente.getAbogado().getIdAbogado() : null;
@@ -91,7 +90,6 @@ public class ClienteRepository {
 
             stmt.execute();
             return true;
-
         } catch (SQLException e) {
             System.err.println("Error al insertar cliente: " + e.getMessage());
             return false;
@@ -101,7 +99,8 @@ public class ClienteRepository {
     public boolean actualizar(Cliente cliente) {
         String sql = "{CALL sp_update_cliente(?, ?, ?, ?, ?, ?, ?, ?)}";
 
-        try (Connection conn = Conexion.getConnection(); CallableStatement stmt = conn.prepareCall(sql)) {
+        try (Connection conn = Conexion.getConnection();
+             CallableStatement stmt = conn.prepareCall(sql)) {
 
             stmt.setString(1, cliente.getDpi());
             stmt.setString(2, cliente.getNit());
@@ -109,6 +108,7 @@ public class ClienteRepository {
             stmt.setString(4, cliente.getApellido());
             stmt.setString(5, cliente.getTelefono());
             stmt.setString(6, cliente.getDireccion());
+
             stmt.setString(7, cliente.getPassword());
 
             String idAbogado = (cliente.getAbogado() != null) ? cliente.getAbogado().getIdAbogado() : null;
@@ -116,7 +116,6 @@ public class ClienteRepository {
 
             stmt.execute();
             return true;
-
         } catch (SQLException e) {
             System.err.println("Error al actualizar cliente: " + e.getMessage());
             return false;
@@ -126,12 +125,11 @@ public class ClienteRepository {
     public boolean eliminar(String dpi) {
         String sql = "{CALL sp_delete_cliente(?)}";
 
-        try (Connection conn = Conexion.getConnection(); CallableStatement stmt = conn.prepareCall(sql)) {
-
+        try (Connection conn = Conexion.getConnection();
+             CallableStatement stmt = conn.prepareCall(sql)) {
             stmt.setString(1, dpi);
-            stmt.execute();
+            stmt.executeUpdate();
             return true;
-
         } catch (SQLException e) {
             System.err.println("Error al eliminar cliente: " + e.getMessage());
             return false;

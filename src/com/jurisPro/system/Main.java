@@ -1,4 +1,4 @@
-package com.jurispro.system;
+package com.jurisPro.system;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -11,7 +11,7 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/jurispro/system/view/Login.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/jurisPro/system/view/Login.fxml"));
             Parent root = loader.load();
 
             Scene scene = new Scene(root);

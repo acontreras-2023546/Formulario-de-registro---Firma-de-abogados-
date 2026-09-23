@@ -1,11 +1,11 @@
-package com.jurispro.system.controller;
+package com.jurisPro.system.controller;
 
-import com.jurispro.system.model.Abogado;
-import com.jurispro.system.model.Cliente;
-import com.jurispro.system.model.Empresas;
-import com.jurispro.system.repository.AbogadoRepository;
-import com.jurispro.system.repository.ClienteRepository;
-import com.jurispro.system.repository.EmpresasRepository;
+import com.jurisPro.system.model.Abogado;
+import com.jurisPro.system.model.Cliente;
+import com.jurisPro.system.model.Empresas;
+import com.jurisPro.system.repository.AbogadoRepository;
+import com.jurisPro.system.repository.ClienteRepository;
+import com.jurisPro.system.repository.EmpresasRepository;
 
 import java.io.IOException;
 import java.net.URL;
@@ -613,9 +613,9 @@ public class AdminDashboardController implements Initializable {
     @FXML
     public void handleCerrarSesion(ActionEvent event) {
         try {
-            URL fxmlUrl = getClass().getResource("/com/jurispro/system/view/LoginView.fxml");
+            URL fxmlUrl = getClass().getResource("/com/jurisPro/system/view/LoginView.fxml");
             if (fxmlUrl == null) {
-                fxmlUrl = getClass().getResource("/com/jurispro/system/view/Login.fxml");
+                fxmlUrl = getClass().getResource("/com/jurisPro/system/view/Login.fxml");
             }
             if (fxmlUrl == null) {
                 fxmlUrl = getClass().getResource("LoginView.fxml");

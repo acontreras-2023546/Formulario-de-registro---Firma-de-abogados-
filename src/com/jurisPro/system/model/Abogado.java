@@ -1,4 +1,4 @@
-package com.jurispro.system.model;
+package com.jurisPro.system.model;
 
 import java.util.Objects;
 
@@ -10,25 +10,27 @@ public class Abogado {
     private String telephone;
     private String password;
     private String idSocio;
-    private String idUsuario; // <--- Atributo agregado
+
 
     // Constructores
     public Abogado() {
     }
 
-    public Abogado(String idAbogado, String name, String lastname, String telephone, String password) {
+    public Abogado(String idAbogado, String name, String lastname, String telephone,String username, String password) {
         this.idAbogado = idAbogado;
         this.name = name;
         this.lastname = lastname;
         this.telephone = telephone;
+        this.username = username;
         this.password = password;
     }
 
-    public Abogado(String idAbogado, String name, String lastname, String telephone, String password, String idSocio) {
+    public Abogado(String idAbogado, String name, String lastname, String telephone,String username, String password, String idSocio) {
         this.idAbogado = idAbogado;
         this.name = name;
         this.lastname = lastname;
         this.telephone = telephone;
+        this.username = username;
         this.password = password;
         this.idSocio = idSocio;
     }
@@ -92,15 +94,6 @@ public class Abogado {
         this.idSocio = idSocio;
     }
 
-    public String getIdUsuario() {
-        return idUsuario;
-    }
-
-    public void setIdUsuario(String idUsuario) {
-        this.idUsuario = idUsuario;
-    }
-
-    // Métodos esenciales para el ComboBox y comparaciones
     @Override
     public boolean equals(Object o) {
         if (this == o) {
