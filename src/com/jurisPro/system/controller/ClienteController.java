@@ -5,7 +5,6 @@ import com.jurisPro.system.model.Cliente;
 import com.jurisPro.system.model.Empresas;
 import com.jurisPro.system.repository.AbogadoRepository;
 import com.jurisPro.system.repository.CasoRepository;
-
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -20,6 +19,9 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.util.Map;
 
+/**
+ * Controlador del portal compartido por Clientes y Empresas.
+ */
 public class ClienteController {
 
     @FXML
@@ -37,28 +39,17 @@ public class ClienteController {
     @FXML
     private Button btnLogout;
 
-    private final AbogadoRepository abogadoRepository =
-            new AbogadoRepository();
-
-    private final CasoRepository casoRepository =
-            new CasoRepository();
+    private final AbogadoRepository abogadoRepository = new AbogadoRepository();
+    private final CasoRepository casoRepository = new CasoRepository();
 
     private Cliente cliente;
     private Empresas empresa;
 
-
-    // ============================================================
-    // CLIENTE
-    // ============================================================
-
     public void setCliente(Cliente cliente) {
-
         this.cliente = cliente;
         this.empresa = null;
 
-        if (cliente == null) {
-            return;
-        }
+        if (cliente == null) return;
 
         String nombreCompleto =
                 (cliente.getNombre() == null ? "" : cliente.getNombre())
@@ -66,245 +57,124 @@ public class ClienteController {
                 + (cliente.getApellido() == null ? "" : cliente.getApellido());
 
         lblNombreCliente.setText(nombreCompleto.trim());
-
         cargarInformacionAbogado(cliente.getAbogado());
-
-        // IMPORTANTE:
-        // Se busca el caso por el DPI del cliente.
-        cargarCasoCliente(cliente.getDpi());
+        cargarCasoCliente(cliente.getDpi(),
+                cliente.getAbogado() == null ? null : cliente.getAbogado().getIdAbogado());
     }
 
-
-    // ============================================================
-    // EMPRESA
-    // ============================================================
-
+    /** Recibe una empresa autenticada y utiliza exactamente la misma vista. */
     public void setEmpresa(Empresas empresa) {
-
         this.empresa = empresa;
         this.cliente = null;
 
-        if (empresa == null) {
-            return;
-        }
+        if (empresa == null) return;
 
         lblNombreCliente.setText(
-                empresa.getNombre() == null
-                        ? ""
-                        : empresa.getNombre()
+                empresa.getNombre() == null ? "" : empresa.getNombre()
         );
 
         cargarInformacionAbogado(empresa.getAbogado());
-
         cargarCasoEmpresa(empresa.getIdEmpresa());
     }
 
-
-    // ============================================================
-    // CARGAR ABOGADO
-    // ============================================================
-
     private void cargarInformacionAbogado(Abogado abogado) {
 
-        if (abogado == null
-                || abogado.getIdAbogado() == null
+        if (abogado == null || abogado.getIdAbogado() == null
                 || abogado.getIdAbogado().isBlank()) {
-
             lblNombreAbogado.setText("Sin abogado asignado");
             return;
         }
 
         Abogado abogadoCompleto =
-                abogadoRepository.obtenerPorId(
-                        abogado.getIdAbogado()
-                );
+                abogadoRepository.obtenerPorId(abogado.getIdAbogado());
 
         if (abogadoCompleto == null) {
-
-            lblNombreAbogado.setText(
-                    "Abogado no encontrado"
-            );
-
+            lblNombreAbogado.setText("Abogado no encontrado");
             return;
         }
 
-        String nombre =
-                abogadoCompleto.getName() == null
-                        ? ""
-                        : abogadoCompleto.getName().trim();
+        String nombre = abogadoCompleto.getName() == null
+                ? "" : abogadoCompleto.getName().trim();
+        String apellido = abogadoCompleto.getLastname() == null
+                ? "" : abogadoCompleto.getLastname().trim();
 
-        String apellido =
-                abogadoCompleto.getLastname() == null
-                        ? ""
-                        : abogadoCompleto.getLastname().trim();
-
-        String nombreCompleto =
-                (nombre + " " + apellido).trim();
+        String nombreCompleto = (nombre + " " + apellido).trim();
 
         lblNombreAbogado.setText(
-                nombreCompleto.isEmpty()
-                        ? "Abogado asignado"
-                        : nombreCompleto
+                nombreCompleto.isEmpty() ? "Abogado asignado" : nombreCompleto
         );
     }
 
-
-    // ============================================================
-    // CASO DEL CLIENTE
-    // ============================================================
-
-    private void cargarCasoCliente(String dpi) {
-
+    private void cargarCasoCliente(String dpi, String idAbogado) {
         Map<String, String> caso =
-                casoRepository.obtenerCasoPorCliente(dpi);
-
+                casoRepository.obtenerCasoPorCliente(dpi, idAbogado);
         mostrarCaso(caso);
     }
-
-
-    // ============================================================
-    // CASO DE LA EMPRESA
-    // ============================================================
 
     private void cargarCasoEmpresa(String idEmpresa) {
-
-        Map<String, String> caso =
-                casoRepository.obtenerCasoPorEmpresa(idEmpresa);
-
+        Map<String, String> caso = casoRepository.obtenerCasoPorEmpresa(idEmpresa);
         mostrarCaso(caso);
     }
-
-
-    // ============================================================
-    // MOSTRAR ESTADO E INFORME
-    // ============================================================
 
     private void mostrarCaso(Map<String, String> caso) {
 
         if (caso == null) {
-
-            lblEstadoCaso.setText(
-                    "Sin caso registrado"
-            );
-
+            lblEstadoCaso.setText("Sin caso registrado");
             lblDescripcionCaso.setText(
-                    "Todavía no hay actualizaciones de un caso "
-                    + "registradas por el abogado."
+                    "Todavía no hay actualizaciones de un caso registradas por el abogado."
             );
-
             return;
         }
 
-
-        // --------------------------------------------------------
-        // ESTADO ACTUAL
-        // --------------------------------------------------------
-        //
-        // Este valor viene directamente de la columna "status"
-        // que guarda el abogado.
-        //
-
+        // El estado que ve el cliente/empresa es EXACTAMENTE el valor
+        // que el abogado guardó en Casos.status.
         String estado = caso.get("status");
-
-        if (estado == null || estado.isBlank()) {
-
-            lblEstadoCaso.setText(
-                    "Sin estado"
-            );
-
-        } else {
-
-            lblEstadoCaso.setText(
-                    estado.trim()
-            );
-        }
-
-
-        // --------------------------------------------------------
-        // INFORME DE AVANCE
-        // --------------------------------------------------------
-        //
-        // La descripción que ve el cliente será el "informe"
-        // registrado por el abogado.
-        //
-
-        String informe = caso.get("informe");
-
-        if (informe == null || informe.isBlank()) {
-
-            lblDescripcionCaso.setText(
-                    "Todavía no hay un informe de avance "
-                    + "registrado por el abogado."
-            );
-
-        } else {
-
-            lblDescripcionCaso.setText(
-                    informe.trim()
-            );
-        }
-    }
-
-
-    // ============================================================
-    // COMPATIBILIDAD
-    // ============================================================
-
-    public void setUsuario(String usuario) {
-
-        lblNombreCliente.setText(
-                usuario == null ? "" : usuario
+        lblEstadoCaso.setText(
+                estado == null || estado.isBlank() ? "Sin estado" : estado.trim()
         );
+
+        // La descripción de la vista del cliente muestra EXACTAMENTE
+        // el último informe guardado por el abogado en Casos.informe.
+        String informe = caso.get("informe");
+        if (informe == null || informe.isBlank()) {
+            lblDescripcionCaso.setText(
+                    "Todavía no hay un informe de avance registrado por el abogado."
+            );
+        } else {
+            lblDescripcionCaso.setText(informe.trim());
+        }
     }
 
-
-    // ============================================================
-    // CERRAR SESIÓN
-    // ============================================================
+    /** Mantiene compatibilidad con el método anterior. */
+    public void setUsuario(String usuario) {
+        lblNombreCliente.setText(usuario == null ? "" : usuario);
+    }
 
     @FXML
     private void handleLogout(ActionEvent event) {
-
         try {
-
-            FXMLLoader loader =
-                    new FXMLLoader(
-                            getClass().getResource(
-                                    "/com/jurisPro/system/view/Login.fxml"
-                            )
-                    );
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource(
+                            "/com/jurisPro/system/view/Login.fxml"
+                    )
+            );
 
             Parent root = loader.load();
 
             Stage stage =
-                    (Stage)
-                    ((Node) event.getSource())
+                    (Stage) ((Node) event.getSource())
                             .getScene()
                             .getWindow();
 
-            stage.setScene(
-                    new Scene(root)
-            );
-
+            stage.setScene(new Scene(root));
             stage.show();
 
         } catch (IOException e) {
-
-            Alert alert =
-                    new Alert(Alert.AlertType.ERROR);
-
+            Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Error");
-
-            alert.setHeaderText(
-                    "No se pudo cerrar la sesión"
-            );
-
-            alert.setContentText(
-                    e.getMessage()
-            );
-
+            alert.setHeaderText("No se pudo cerrar la sesión");
+            alert.setContentText(e.getMessage());
             alert.showAndWait();
         }
     }
 }
-
