@@ -4,6 +4,7 @@ package com.jurisPro.system.controller;
 import com.jurisPro.system.model.Abogado;
 import com.jurisPro.system.model.Cliente;
 import com.jurisPro.system.service.ClienteService;
+import com.jurisPro.system.repository.CasoRepository;
 
 import java.io.IOException;
 import java.net.URL;
@@ -21,6 +22,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.PasswordField;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
@@ -67,6 +69,15 @@ public class AbogadoDashboardController implements Initializable {
     private TextField txtDireccion;
 
     @FXML
+    private TextField txtUsername;
+
+    @FXML
+    private PasswordField txtPassword;
+
+    @FXML
+    private PasswordField txtConfirmPassword;
+
+    @FXML
     private ComboBox<String> cmbEstadoCaso;
 
     @FXML
@@ -74,6 +85,9 @@ public class AbogadoDashboardController implements Initializable {
 
     private final ClienteService clienteService =
             new ClienteService();
+
+    private final CasoRepository casoRepository =
+            new CasoRepository();
 
     private Abogado abogadoLogueado;
 
@@ -254,6 +268,15 @@ public class AbogadoDashboardController implements Initializable {
         String direccion =
                 txtDireccion.getText().trim();
 
+        String username =
+                txtUsername.getText().trim();
+
+        String password =
+                txtPassword.getText();
+
+        String confirmPassword =
+                txtConfirmPassword.getText();
+
         if (dpi.isEmpty()) {
 
             mostrarAlerta(
@@ -320,6 +343,39 @@ public class AbogadoDashboardController implements Initializable {
             return;
         }
 
+        if (username.isEmpty()) {
+
+            mostrarAlerta(
+                    Alert.AlertType.WARNING,
+                    "Validación",
+                    "El username es obligatorio."
+            );
+
+            return;
+        }
+
+        if (password.isEmpty()) {
+
+            mostrarAlerta(
+                    Alert.AlertType.WARNING,
+                    "Validación",
+                    "La contraseña es obligatoria."
+            );
+
+            return;
+        }
+
+        if (!password.equals(confirmPassword)) {
+
+            mostrarAlerta(
+                    Alert.AlertType.WARNING,
+                    "Validación",
+                    "Las contraseñas no coinciden."
+            );
+
+            return;
+        }
+
         Cliente nuevoCliente =
                 new Cliente();
 
@@ -334,8 +390,10 @@ public class AbogadoDashboardController implements Initializable {
         nuevoCliente.setAbogado(abogadoLogueado);
 
         boolean exito =
-                clienteService.crearCliente(
-                        nuevoCliente
+                clienteService.crearClienteConCredenciales(
+                        nuevoCliente,
+                        username,
+                        password
                 );
 
         if (exito) {
@@ -343,7 +401,7 @@ public class AbogadoDashboardController implements Initializable {
             mostrarAlerta(
                     Alert.AlertType.INFORMATION,
                     "Éxito",
-                    "Cliente creado correctamente."
+                    "Cliente y cuenta de acceso creados correctamente."
             );
 
             cargarClientes();
@@ -360,82 +418,97 @@ public class AbogadoDashboardController implements Initializable {
         }
     }
 
-    @FXML
-    public void OnSave(MouseEvent event) {
+@FXML
+public void OnSave(MouseEvent event) {
 
-        if (clienteSeleccionado == null) {
+    if (clienteSeleccionado == null) {
 
-            mostrarAlerta(
-                    Alert.AlertType.WARNING,
-                    "Atención",
-                    "Seleccione un cliente para actualizar."
-            );
-
-            return;
-        }
-
-        if (abogadoLogueado == null) {
-
-            mostrarAlerta(
-                    Alert.AlertType.ERROR,
-                    "Error",
-                    "No se ha identificado al abogado."
-            );
-
-            return;
-        }
-
-        clienteSeleccionado.setNit(
-                txtNit.getText().trim()
+        mostrarAlerta(
+                Alert.AlertType.WARNING,
+                "Validación",
+                "Debe seleccionar un cliente."
         );
 
-        clienteSeleccionado.setNombre(
-                txtNombre.getText().trim()
-        );
-
-        clienteSeleccionado.setApellido(
-                txtApellido.getText().trim()
-        );
-
-        clienteSeleccionado.setTelefono(
-                txtTelefono.getText().trim()
-        );
-
-        clienteSeleccionado.setDireccion(
-                txtDireccion.getText().trim()
-        );
-
-        // Mantener el abogado actual
-        clienteSeleccionado.setAbogado(
-                abogadoLogueado
-        );
-
-        boolean exito =
-                clienteService.actualizarCliente(
-                        clienteSeleccionado
-                );
-
-        if (exito) {
-
-            mostrarAlerta(
-                    Alert.AlertType.INFORMATION,
-                    "Éxito",
-                    "Cliente actualizado correctamente."
-            );
-
-            cargarClientes();
-
-            limpiarFormulario();
-
-        } else {
-
-            mostrarAlerta(
-                    Alert.AlertType.ERROR,
-                    "Error",
-                    "No se pudo actualizar el cliente."
-            );
-        }
+        return;
     }
+
+
+    if (abogadoLogueado == null) {
+
+        mostrarAlerta(
+                Alert.AlertType.ERROR,
+                "Error",
+                "No se ha identificado al abogado."
+        );
+
+        return;
+    }
+
+
+    String estado =
+            cmbEstadoCaso.getValue();
+
+    String informe =
+            txtInformeCaso.getText().trim();
+
+
+    if (estado == null || estado.isBlank()) {
+
+        mostrarAlerta(
+                Alert.AlertType.WARNING,
+                "Validación",
+                "Debe seleccionar un estado."
+        );
+
+        return;
+    }
+
+
+    String dpi =
+            clienteSeleccionado.getDpi();
+
+    String idAbogado =
+            abogadoLogueado.getIdAbogado();
+
+
+    // ============================================================
+    // GUARDAR ESTADO + INFORME
+    // ============================================================
+
+    boolean casoGuardado =
+            casoRepository.guardarActualizacionCliente(
+                    dpi,
+                    idAbogado,
+                    estado,
+                    informe
+            );
+
+
+    if (!casoGuardado) {
+
+        mostrarAlerta(
+                Alert.AlertType.ERROR,
+                "Error",
+                "Los datos del cliente se actualizaron, "
+                + "pero no se pudo guardar la actualización "
+                + "del caso."
+        );
+
+        return;
+    }
+
+
+    mostrarAlerta(
+            Alert.AlertType.INFORMATION,
+            "Éxito",
+            "Cliente y estado del caso actualizados correctamente."
+    );
+
+
+    // Recargar información
+    cargarClientes();
+}
+
 
     @FXML
     public void OnDelete(MouseEvent event) {
@@ -510,14 +583,20 @@ public class AbogadoDashboardController implements Initializable {
         );
 
         if (cmbEstadoCaso != null) {
+            java.util.Map<String, String> caso =
+                    casoRepository.obtenerCasoPorCliente(cliente.getDpi());
 
-            cmbEstadoCaso.setValue(
-                    "EN PROCESO"
-            );
+            if (caso != null && caso.get("status") != null
+                    && !caso.get("status").isBlank()) {
+                cmbEstadoCaso.setValue(caso.get("status"));
+            } else {
+                cmbEstadoCaso.setValue("EN PROCESO");
+            }
         }
 
         if (txtInformeCaso != null) {
-
+            // Este campo es para escribir SOLO el nuevo informe.
+            // Los informes anteriores se conservan en la base de datos.
             txtInformeCaso.clear();
         }
     }
@@ -546,6 +625,18 @@ public class AbogadoDashboardController implements Initializable {
 
         if (txtDireccion != null) {
             txtDireccion.clear();
+        }
+
+        if (txtUsername != null) {
+            txtUsername.clear();
+        }
+
+        if (txtPassword != null) {
+            txtPassword.clear();
+        }
+
+        if (txtConfirmPassword != null) {
+            txtConfirmPassword.clear();
         }
 
         if (cmbEstadoCaso != null) {

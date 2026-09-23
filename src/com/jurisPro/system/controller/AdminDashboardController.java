@@ -834,27 +834,48 @@ public void initialize(URL location, ResourceBundle resources) {
 
         } else if ("Empresa".equalsIgnoreCase(tipo)) {
 
+            String usuario =
+                    txtUsuario != null
+                            ? txtUsuario.getText().trim()
+                            : "";
+
+            if (usuario.isEmpty()) {
+                mostrarAlerta(
+                        Alert.AlertType.ERROR,
+                        "Validación",
+                        "El nombre de usuario es obligatorio para la empresa."
+                );
+                return;
+            }
+
+            if (pass.isEmpty()) {
+                mostrarAlerta(
+                        Alert.AlertType.ERROR,
+                        "Validación",
+                        "La contraseña es obligatoria para la empresa."
+                );
+                return;
+            }
+
             Empresas nueva = new Empresas();
 
             nueva.setIdEmpresa(id);
             nueva.setNombre(nombre);
             nueva.setTelefono(telefono);
-
             nueva.setDireccion(
                     txtDireccion != null
                             ? txtDireccion.getText()
                             : ""
             );
-
-            nueva.setPassword(
-                    !pass.isEmpty()
-                            ? pass
-                            : "N/A"
-            );
-
+            nueva.setUsername(usuario);
+            nueva.setPassword(pass);
             nueva.setAbogado(abogadoAsignado);
 
-            exito = empresaRepo.guardar(nueva);
+            exito = empresaRepo.guardarConCredenciales(
+                    nueva,
+                    usuario,
+                    pass
+            );
         }
 
         if (exito) {

@@ -216,6 +216,8 @@ CREATE TABLE Casos (
     informe TEXT NULL,
     date VARCHAR(50) NOT NULL,
     Id_abogado VARCHAR(36) NOT NULL,
+    DPI_cliente VARCHAR(13) NULL,
+    Id_empresa VARCHAR(36) NULL,
     CONSTRAINT pk_casos PRIMARY KEY (Id_caso),
     CONSTRAINT fk_casos_abogados FOREIGN KEY (Id_abogado) REFERENCES Abogados(Id_abogado) ON DELETE CASCADE
 );
@@ -367,3 +369,16 @@ BEGIN
     DELETE FROM Empresas WHERE Id_empresa = p_id_empresa;
 END //
 DELIMITER ;
+
+-- ============================================================================
+-- RELACIONES DE CASOS CON CLIENTES Y EMPRESAS
+-- (Se agregan al final porque Clientes y Empresas se crean después de Casos.)
+-- ============================================================================
+ALTER TABLE Casos
+    ADD CONSTRAINT fk_casos_cliente
+        FOREIGN KEY (DPI_cliente) REFERENCES Clientes(DPI) ON DELETE CASCADE,
+    ADD CONSTRAINT fk_casos_empresa
+        FOREIGN KEY (Id_empresa) REFERENCES Empresas(Id_empresa) ON DELETE CASCADE;
+
+CREATE INDEX idx_casos_cliente ON Casos(DPI_cliente);
+CREATE INDEX idx_casos_empresa ON Casos(Id_empresa);

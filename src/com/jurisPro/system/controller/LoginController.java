@@ -1,6 +1,7 @@
 package com.jurisPro.system.controller;
 
 import com.jurisPro.system.model.Abogado;
+import com.jurisPro.system.model.Cliente;
 import com.jurisPro.system.model.Rol;
 import static com.jurisPro.system.model.Rol.ABOGADO;
 import static com.jurisPro.system.model.Rol.ADMINISTRADOR;
@@ -108,27 +109,35 @@ public class LoginController {
         // -----------------------------------------
         if (rolSeleccionado == Rol.CLIENTE) {
 
-            boolean clienteAutenticado =
-                    clienteRepository.autenticarCliente(usuario, password);
+            Cliente cliente =
+                    clienteRepository.autenticarCliente(
+                            usuario,
+                            password
+                    );
 
-            boolean empresaAutenticada =
-                    empresaRepository.autenticarEmpresa(usuario, password);
-
-            if (clienteAutenticado || empresaAutenticada) {
-                mostrarAlerta(
-                        "Acceso correcto",
-                        "Cliente",
-                        "El acceso de clientes está autenticado, pero su vista todavía no está disponible.",
-                        Alert.AlertType.INFORMATION
-                );
-            } else {
-                mostrarAlerta(
-                        "Acceso Denegado",
-                        "Credenciales Incorrectas",
-                        "El usuario o contraseña del cliente son incorrectos.",
-                        Alert.AlertType.ERROR
-                );
+            if (cliente != null) {
+                abrirDashboardCliente(event, cliente);
+                return;
             }
+
+            // Las empresas utilizan el mismo portal/vista que los clientes.
+            com.jurisPro.system.model.Empresas empresa =
+                    empresaRepository.autenticarEmpresa(
+                            usuario,
+                            password
+                    );
+
+            if (empresa != null) {
+                abrirDashboardEmpresa(event, empresa);
+                return;
+            }
+
+            mostrarAlerta(
+                    "Acceso Denegado",
+                    "Credenciales Incorrectas",
+                    "El usuario o contraseña son incorrectos.",
+                    Alert.AlertType.ERROR
+            );
 
             return;
         }
@@ -172,6 +181,94 @@ public class LoginController {
             mostrarAlerta(
                     "Error",
                     "No se pudo abrir el Dashboard",
+                    e.getMessage() == null
+                            ? "Error desconocido."
+                            : e.getMessage(),
+                    Alert.AlertType.ERROR
+            );
+        }
+    }
+
+    /**
+     * Abre el dashboard del cliente y le pasa
+     * el cliente que acaba de iniciar sesión.
+     */
+    private void abrirDashboardCliente(
+            ActionEvent event,
+            Cliente cliente) {
+
+        try {
+
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource(
+                            "/com/jurisPro/system/view/ClienteView.fxml"
+                    )
+            );
+
+            Parent root = loader.load();
+
+            ClienteController controller =
+                    loader.getController();
+
+            controller.setCliente(cliente);
+
+            Stage stage =
+                    (Stage) ((Node) event.getSource())
+                            .getScene()
+                            .getWindow();
+
+            stage.setScene(new Scene(root));
+            stage.show();
+
+        } catch (IOException | RuntimeException e) {
+
+            e.printStackTrace();
+
+            mostrarAlerta(
+                    "Error",
+                    "No se pudo abrir el Dashboard del cliente",
+                    e.getMessage() == null
+                            ? "Error desconocido."
+                            : e.getMessage(),
+                    Alert.AlertType.ERROR
+            );
+        }
+    }
+
+
+    /**
+     * Abre la misma vista ClienteView para una empresa.
+     */
+    private void abrirDashboardEmpresa(
+            ActionEvent event,
+            com.jurisPro.system.model.Empresas empresa) {
+
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource(
+                            "/com/jurisPro/system/view/ClienteView.fxml"
+                    )
+            );
+
+            Parent root = loader.load();
+
+            ClienteController controller = loader.getController();
+            controller.setEmpresa(empresa);
+
+            Stage stage =
+                    (Stage) ((Node) event.getSource())
+                            .getScene()
+                            .getWindow();
+
+            stage.setScene(new Scene(root));
+            stage.show();
+
+        } catch (IOException | RuntimeException e) {
+            e.printStackTrace();
+
+            mostrarAlerta(
+                    "Error",
+                    "No se pudo abrir el portal",
                     e.getMessage() == null
                             ? "Error desconocido."
                             : e.getMessage(),

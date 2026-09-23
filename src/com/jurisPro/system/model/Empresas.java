@@ -7,6 +7,8 @@ public class Empresas {
     private String telefono;
     private String direccion;
     private String password;
+    private String username;
+    private String idUsuario;
     private Abogado abogado;
 
     public Empresas() {
@@ -50,6 +52,22 @@ public class Empresas {
 
     public void setDireccion(String direccion) {
         this.direccion = direccion;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getIdUsuario() {
+        return idUsuario;
+    }
+
+    public void setIdUsuario(String idUsuario) {
+        this.idUsuario = idUsuario;
     }
 
     public String getPassword() {
