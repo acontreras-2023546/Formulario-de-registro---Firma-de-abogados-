@@ -1,7 +1,8 @@
 package com.jurisPro.system.repository;
 
 import com.jurisPro.system.config.Conexion;
-import com.jurisPro.system.model.Abogado;
+
+import com.jurispro.system.model.Abogado;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -12,142 +13,140 @@ import java.util.List;
     
 public class AbogadoRepository {
 
-    /**
-     * Autentica al usuario verificando su nombre de usuario y contraseña en la tabla 'Usuarios'.
-     */
-   
-public boolean autenticarAbogado(String username, String password) {
 
-    String sql = "{CALL sp_autenticar_abogado(?, ?)}";
+    public List<Abogado> obtenerTodos() {
+        List<Abogado> abogados = new ArrayList<>();
+        String sql = "{CALL sp_select_abogados()}";
 
-    try (Connection conn = Conexion.getConnection();
-         CallableStatement stmt = conn.prepareCall(sql)) {
+        try (Connection conn = Conexion.getConnection(); 
+             CallableStatement stmt = conn.prepareCall(sql); 
+             ResultSet rs = stmt.executeQuery()) {
 
-        stmt.setString(1, username);
-        stmt.setString(2, password);
+            while (rs.next()) {
+                Abogado abogado = new Abogado();
+                abogado.setIdAbogado(rs.getString("Id_abogado"));
+                abogado.setName(rs.getString("name"));
+                abogado.setLastname(rs.getString("lastname"));
+                abogado.setTelephone(rs.getString("telephone"));
+                abogado.setPassword(rs.getString("password"));
+                abogado.setIdSocio(rs.getString("Id_socio"));
+                abogado.setIdUsuario(rs.getString("id_usuario"));
 
-        try (ResultSet rs = stmt.executeQuery()) {
-            return rs.next();
+                abogados.add(abogado);
+            } 
+        } catch (SQLException e) {
+            System.err.println("Error al listar abogados: " + e.getMessage());
         }
 
-    } catch (SQLException e) {
-        System.err.println("Error al autenticar abogado: " + e.getMessage());
-        return false;
+        return abogados;
+    }
+
+    public List<Abogado> listarTodos() {
+        return obtenerTodos();
     }
 }
 
 
 
-    /**
-     * Obtiene el primer Id_socio disponible en la base de datos.
-     */
     public String obtenerPrimerIdSocio() {
-        String sql = "SELECT Id_socio FROM Socio LIMIT 1";
-        try (Connection conn = Conexion.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql);
+        String sql = "SELECT Id_socio FROM Socio WHERE Id_socio IS NOT NULL AND Id_socio != '' LIMIT 1";
+
+        try (Connection conn = Conexion.getConnection(); 
+             PreparedStatement stmt = conn.prepareStatement(sql); 
              ResultSet rs = stmt.executeQuery()) {
 
             if (rs.next()) {
                 return rs.getString("Id_socio");
             }
         } catch (SQLException e) {
-            System.err.println("Error al obtener ID de socio: " + e.getMessage());
+            System.err.println("Error al obtener el primer id_socio: " + e.getMessage());
         }
+
         return null;
     }
 
-    /**
-     * Inserta un abogado en la tabla Abogados según las columnas definidas en el script SQL.
-     */
-    public boolean guardar(Abogado abogado) {
-    String sql = "INSERT INTO Abogados "
-            + "(Id_abogado, name, lastname, especiality, telephone, Id_socio, username,  password) "
-            + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+    public boolean autenticarAbogado(String usuario, String password) {
+        String sql = "{CALL sp_autenticar_usuario(?, ?)}";
 
-    try (Connection conn = Conexion.getConnection();
-         PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (Connection conn = Conexion.getConnection(); 
+             CallableStatement stmt = conn.prepareCall(sql)) {
 
-        stmt.setString(1, abogado.getIdAbogado());
-        stmt.setString(2, abogado.getName());
-        stmt.setString(3, abogado.getLastname());
-        stmt.setString(4, "General");
-        stmt.setString(5, abogado.getTelephone());
-        stmt.setString(6, abogado.getUsername());
-        stmt.setString(7, abogado.getIdSocio());
-        stmt.setString(8, abogado.getPassword());
+            stmt.setString(1, usuario);
+            stmt.setString(2, password);
 
-        return stmt.executeUpdate() > 0;
-
-    } catch (SQLException e) {
-        System.err.println("Error al guardar abogado: " + e.getMessage());
-        return false;
-    }
-}
-    /**
-     * Consulta y retorna todos los abogados registrados.
-     */
-    public List<Abogado> obtenerTodos() {
-    List<Abogado> lista = new ArrayList<>();
-    String sql = "SELECT * FROM Abogados";
-
-    try (Connection conn = Conexion.getConnection();
-         PreparedStatement stmt = conn.prepareStatement(sql);
-         ResultSet rs = stmt.executeQuery()) {
-
-        while (rs.next()) {
-            Abogado a = new Abogado();
-
-            a.setIdAbogado(rs.getString("Id_abogado"));
-            a.setName(rs.getString("name"));
-            a.setLastname(rs.getString("lastname"));
-            a.setTelephone(rs.getString("telephone"));
-            a.setIdSocio(rs.getString("Id_socio"));
-            a.setPassword(rs.getString("password"));
-
-            lista.add(a);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getString("id_usuario") != null;
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al autenticar abogado: " + e.getMessage());
         }
 
-    } catch (SQLException e) {
-        System.err.println("Error al listar abogados: " + e.getMessage());
-    }
-
-    return lista;
-}
-    /**
-     * Actualiza los datos de un abogado existente.
-     */
-    public boolean actualizar(Abogado abogado) {
-    String sql = "UPDATE Abogados "
-            + "SET name = ?, lastname = ?, telephone = ?, password = ? "
-            + "WHERE Id_abogado = ?";
-
-    try (Connection conn = Conexion.getConnection();
-         PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-        stmt.setString(1, abogado.getName());
-        stmt.setString(2, abogado.getLastname());
-        stmt.setString(3, abogado.getTelephone());
-        stmt.setString(4, abogado.getPassword());
-        stmt.setString(5, abogado.getIdAbogado());
-
-        return stmt.executeUpdate() > 0;
-
-    } catch (SQLException e) {
-        System.err.println("Error al actualizar abogado: " + e.getMessage());
         return false;
     }
+
+    public boolean guardar(Abogado abogado) {
+
+        String sql = "{CALL sp_insert_abogado(?, ?, ?, ?, ?, ?)}";
+
+        try (Connection conn = Conexion.getConnection(); 
+             CallableStatement stmt = conn.prepareCall(sql)) {
+
+            if (abogado.getIdAbogado() == null || abogado.getIdAbogado().trim().isEmpty()) {
+                System.err.println("Error: El ID del abogado no puede estar vacío.");
+                return false;
+            }
+
+            stmt.setString(1, abogado.getIdAbogado());
+            stmt.setString(2, abogado.getName());
+            stmt.setString(3, abogado.getLastname());
+            stmt.setString(4, abogado.getTelephone());
+            stmt.setString(5, abogado.getPassword());
+            stmt.setString(6, abogado.getIdSocio());
+
+            stmt.execute();
+            return true;
+
+        } catch (SQLException e) {
+            System.err.println("Error al insertar abogado: " + e.getMessage());
+            return false;
+        }
+    }
+
+    public boolean actualizar(Abogado abogado) {
+        String sql = "{CALL sp_update_abogado(?, ?, ?, ?, ?, ?)}";
+
+        try (Connection conn = Conexion.getConnection(); 
+             CallableStatement stmt = conn.prepareCall(sql)) {
+
+            stmt.setString(1, abogado.getIdAbogado());
+            stmt.setString(2, abogado.getName());
+            stmt.setString(3, abogado.getLastname());
+            stmt.setString(4, abogado.getTelephone());
+            stmt.setString(5, abogado.getPassword());
+            stmt.setString(6, abogado.getIdSocio());
+
+            stmt.execute();
+            return true;
+
+        } catch (SQLException e) {
+            System.err.println("Error al actualizar abogado: " + e.getMessage());
+            return false;
+        }
+    }
 }
 
-    /**
-     * Elimina un abogado por su identificador.
-     */
     public boolean eliminar(String idAbogado) {
-        String sql = "DELETE FROM Abogados WHERE Id_abogado = ?";
-        try (Connection conn = Conexion.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        String sql = "{CALL sp_delete_abogado(?)}";
+
+        try (Connection conn = Conexion.getConnection(); 
+             CallableStatement stmt = conn.prepareCall(sql)) {
 
             stmt.setString(1, idAbogado);
-            return stmt.executeUpdate() > 0;
+            stmt.execute();
+            return true;
+
         } catch (SQLException e) {
             System.err.println("Error al eliminar abogado: " + e.getMessage());
             return false;

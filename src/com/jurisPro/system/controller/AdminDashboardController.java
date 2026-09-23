@@ -21,35 +21,34 @@ import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import javafx.util.StringConverter;
 
 public class AdminDashboardController implements Initializable {
 
-    // Componentes de la Tabla
+    // --- ELEMENTOS DE LA VISTA (FXML) ---
     @FXML
-    private TableView<Object> tablaUsuarios;
+    private ComboBox<String> cmbTipoUsuario;
+    @FXML
+    private TableView<Object> tblGeneral;
     @FXML
     private TableColumn<Object, String> colId;
     @FXML
     private TableColumn<Object, String> colNombre;
     @FXML
-    private TableColumn<Object, String> colRol;
+    private TableColumn<Object, String> colTipo;
     @FXML
-    private TableColumn<Object, String> colTelefono;
-    @FXML
-    private TableColumn<Object, String> colAbogadoAsignado;
+    private TableColumn<Object, String> colAbogado;
 
-    // Filtro y Controles
-    @FXML
-    private ComboBox<String> cmbTipoUsuario;
     @FXML
     private ComboBox<String> cmbFormTipo;
-    @FXML
-    private ComboBox<Abogado> cmbAsignarAbogado;
-
-    // Campos de Texto del Formulario
     @FXML
     private TextField txtDpi;
     @FXML
@@ -63,13 +62,19 @@ public class AdminDashboardController implements Initializable {
     @FXML
     private TextField txtDireccion;
     @FXML
+    private ComboBox<Abogado> cmbAsignarAbogado;
+
+    @FXML
     private PasswordField txtPassword;
     @FXML
     private PasswordField txtConfirmPassword;
-
-    // Botones
     @FXML
-    private Button btnCrear;
+    private TextField txtUsuario;
+
+    @FXML
+    private Button btnGuardar; // Corregido: Coincide con fx:id="btnGuardar" en el FXML
+    @FXML
+    private Button btnLimpiar; // Inyección para el botón Limpiar
     @FXML
     private Button btnEditar;
     @FXML
@@ -77,34 +82,39 @@ public class AdminDashboardController implements Initializable {
     @FXML
     private Button btnLogout;
 
+    // --- REPOSITORIOS ---
     private final AbogadoRepository abogadoRepo = new AbogadoRepository();
     private final ClienteRepository clienteRepo = new ClienteRepository();
     private final EmpresasRepository empresaRepo = new EmpresasRepository();
 
+    // --- LISTAS OBSERVABLES Y ESTADO ---
     private final ObservableList<Object> listaUsuarios = FXCollections.observableArrayList();
+    private final ObservableList<Abogado> listaAbogados = FXCollections.observableArrayList();
     private Object itemSeleccionado = null;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         configurarTabla();
         configurarComboAbogados();
-        cargarComboTipos();
-        cargarComboAbogados();
-        cargarDatosTabla();
+        cargarCombos();
+        actualizarTodo();
 
-        if (cmbFormTipo != null) {
-            cmbFormTipo.valueProperty().addListener((obs, oldVal, newVal) -> {
-                actualizarCamposPorRol(newVal);
-            });
+        // Listeners
+        if (cmbTipoUsuario != null) {
+            cmbTipoUsuario.setOnAction(e -> cargarDatosTabla());
         }
 
-        if (tablaUsuarios != null) {
-            tablaUsuarios.getSelectionModel().selectedItemProperty().addListener((obs, oldSel, newSel) -> {
+        if (cmbFormTipo != null) {
+            cmbFormTipo.valueProperty().addListener((obs, oldVal, newVal) -> actualizarCamposPorRol(newVal));
+        }
+
+        if (tblGeneral != null) {
+            tblGeneral.getSelectionModel().selectedItemProperty().addListener((obs, oldSel, newSel) -> {
                 if (newSel != null) {
                     itemSeleccionado = newSel;
                     cargarFormularioDesdeTabla(newSel);
                 } else {
-                    limpiarCampos();
+                    handleLimpiar(null);
                 }
             });
         }
@@ -145,8 +155,8 @@ public class AdminDashboardController implements Initializable {
             });
         }
 
-        if (colRol != null) {
-            colRol.setCellValueFactory(data -> {
+        if (colTipo != null) {
+            colTipo.setCellValueFactory(data -> {
                 Object item = data.getValue();
                 if (item instanceof Abogado) {
                     return new SimpleStringProperty("Abogado");
@@ -161,33 +171,35 @@ public class AdminDashboardController implements Initializable {
             });
         }
 
-        if (colTelefono != null) {
-            colTelefono.setCellValueFactory(data -> {
+        if (colAbogado != null) {
+            colAbogado.setCellValueFactory(data -> {
                 Object item = data.getValue();
-                if (item instanceof Abogado) {
-                    return new SimpleStringProperty(((Abogado) item).getTelephone());
-                }
-                if (item instanceof Cliente) {
-                    return new SimpleStringProperty(((Cliente) item).getTelefono());
-                }
-                if (item instanceof Empresas) {
-                    return new SimpleStringProperty(((Empresas) item).getTelefono());
-                }
-                return new SimpleStringProperty("");
-            });
-        }
 
-        if (colAbogadoAsignado != null) {
-            colAbogadoAsignado.setCellValueFactory(data -> {
-                Object item = data.getValue();
                 if (item instanceof Cliente) {
                     Cliente c = (Cliente) item;
-                    return new SimpleStringProperty(c.getAbogado() != null ? c.getAbogado().getName() : "N/A");
+                    // Si c.getAbogado() devuelve un objeto Abogado:
+                    if (c.getAbogado() != null) {
+                        String nombreCompleto = (c.getAbogado().getName() != null ? c.getAbogado().getName() : "")
+                                + " "
+                                + (c.getAbogado().getLastname() != null ? c.getAbogado().getLastname() : "");
+                        return new SimpleStringProperty(nombreCompleto.trim().isEmpty() ? "Sin Nombre" : nombreCompleto);
+                    }
+                    return new SimpleStringProperty("Sin Asignar");
                 }
+
                 if (item instanceof Empresas) {
                     Empresas e = (Empresas) item;
-                    return new SimpleStringProperty(e.getAbogado() != null ? e.getAbogado().getName() : "N/A");
+                    // Si e.getAbogado() devuelve un objeto Abogado:
+                    if (e.getAbogado() != null) {
+                        String nombreCompleto = (e.getAbogado().getName() != null ? e.getAbogado().getName() : "")
+                                + " "
+                                + (e.getAbogado().getLastname() != null ? e.getAbogado().getLastname() : "");
+                        return new SimpleStringProperty(nombreCompleto.trim().isEmpty() ? "Sin Nombre" : nombreCompleto);
+                    }
+                    return new SimpleStringProperty("Sin Asignar");
                 }
+
+                // Si la fila es de tipo Abogado, mostramos N/A
                 return new SimpleStringProperty("N/A");
             });
         }
@@ -203,19 +215,17 @@ public class AdminDashboardController implements Initializable {
         boolean esEmpresa = "Empresa".equalsIgnoreCase(tipo);
 
         if (txtDpi != null) {
-            txtDpi.setDisable(esAbogado || esEmpresa);
-            if (esAbogado || esEmpresa) {
+            txtDpi.setDisable(!esCliente);
+            if (!esCliente) {
                 txtDpi.clear();
             }
         }
-
         if (txtApellido != null) {
             txtApellido.setDisable(esEmpresa);
             if (esEmpresa) {
                 txtApellido.clear();
             }
         }
-
         if (txtNit != null) {
             txtNit.setDisable(esAbogado);
             if (esAbogado) {
@@ -228,22 +238,20 @@ public class AdminDashboardController implements Initializable {
                 txtDireccion.clear();
             }
         }
-
         if (cmbAsignarAbogado != null) {
             cmbAsignarAbogado.setDisable(esAbogado);
             if (esAbogado) {
                 cmbAsignarAbogado.setValue(null);
             }
         }
-
         if (txtPassword != null) {
-            txtPassword.setDisable(esCliente);
+            txtPassword.setDisable(false);
             if (esCliente) {
                 txtPassword.clear();
             }
         }
         if (txtConfirmPassword != null) {
-            txtConfirmPassword.setDisable(esCliente);
+            txtConfirmPassword.setDisable(false);
             if (esCliente) {
                 txtConfirmPassword.clear();
             }
@@ -252,10 +260,16 @@ public class AdminDashboardController implements Initializable {
 
     private void configurarComboAbogados() {
         if (cmbAsignarAbogado != null) {
+            // Configuración para mostrar nombre y apellido en el ComboBox
             cmbAsignarAbogado.setConverter(new StringConverter<Abogado>() {
                 @Override
                 public String toString(Abogado abogado) {
-                    return abogado != null ? abogado.getName() + " " + (abogado.getLastname() != null ? abogado.getLastname() : "") : "";
+                    if (abogado == null) {
+                        return "";
+                    }
+                    String nombre = abogado.getName() != null ? abogado.getName() : "";
+                    String apellido = abogado.getLastname() != null ? abogado.getLastname() : "";
+                    return (nombre + " " + apellido).trim();
                 }
 
                 @Override
@@ -263,32 +277,84 @@ public class AdminDashboardController implements Initializable {
                     return null;
                 }
             });
+
+            // Cargar los abogados desde el repositorio al ComboBox
+            if (abogadoRepo != null) {
+                cmbAsignarAbogado.setItems(FXCollections.observableArrayList(abogadoRepo.obtenerTodos()));
+            }
         }
     }
 
-    private void cargarComboTipos() {
-        ObservableList<String> tipos = FXCollections.observableArrayList("Abogado", "Cliente", "Empresa");
+    private void cargarCombos() {
+        ObservableList<String> tiposFiltro = FXCollections.observableArrayList("Todos", "Abogados", "Clientes", "Empresas");
+        ObservableList<String> tiposForm = FXCollections.observableArrayList("Abogado", "Cliente", "Empresa");
+
         if (cmbTipoUsuario != null) {
-            cmbTipoUsuario.setItems(tipos);
+            cmbTipoUsuario.setItems(tiposFiltro);
+            cmbTipoUsuario.setValue("Todos");
         }
         if (cmbFormTipo != null) {
-            cmbFormTipo.setItems(tipos);
+            cmbFormTipo.setItems(tiposForm);
         }
+    }
+
+    private void actualizarTodo() {
+        cargarComboAbogados();
+        cargarDatosTabla();
+        handleLimpiar(null);
     }
 
     private void cargarComboAbogados() {
         if (cmbAsignarAbogado != null) {
-            cmbAsignarAbogado.setItems(FXCollections.observableArrayList(abogadoRepo.obtenerTodos()));
+            listaAbogados.setAll(abogadoRepo.obtenerTodos());
+            cmbAsignarAbogado.setItems(listaAbogados);
         }
     }
 
     private void cargarDatosTabla() {
         listaUsuarios.clear();
-        listaUsuarios.addAll(abogadoRepo.obtenerTodos());
-        listaUsuarios.addAll(clienteRepo.obtenerTodos());
-        listaUsuarios.addAll(empresaRepo.obtenerTodos());
-        if (tablaUsuarios != null) {
-            tablaUsuarios.setItems(listaUsuarios);
+        String filtro = cmbTipoUsuario != null ? cmbTipoUsuario.getValue() : "Todos";
+
+        // 1. Cargar Abogados
+        List<Abogado> listaAbogados = abogadoRepo.obtenerTodos();
+
+        if ("Todos".equals(filtro) || "Abogados".equals(filtro)) {
+            listaUsuarios.addAll(listaAbogados);
+        }
+
+        // 2. Cargar Clientes y vincular su Abogado asignado
+        if ("Todos".equals(filtro) || "Clientes".equals(filtro)) {
+            List<Cliente> clientes = clienteRepo.obtenerTodos();
+            for (Cliente c : clientes) {
+                // Si el cliente ya tiene la instancia o un ID de abogado, aseguramos la vinculación
+                if (c.getAbogado() != null && c.getAbogado().getIdAbogado() != null) {
+                    String idBuscado = c.getAbogado().getIdAbogado();
+                    listaAbogados.stream()
+                            .filter(a -> idBuscado.equals(a.getIdAbogado()))
+                            .findFirst()
+                            .ifPresent(c::setAbogado);
+                }
+            }
+            listaUsuarios.addAll(clientes);
+        }
+
+        // 3. Cargar Empresas y vincular su Abogado asignado
+        if ("Todos".equals(filtro) || "Empresas".equals(filtro)) {
+            List<Empresas> empresas = empresaRepo.obtenerTodos();
+            for (Empresas e : empresas) {
+                if (e.getAbogado() != null && e.getAbogado().getIdAbogado() != null) {
+                    String idBuscado = e.getAbogado().getIdAbogado();
+                    listaAbogados.stream()
+                            .filter(a -> idBuscado.equals(a.getIdAbogado()))
+                            .findFirst()
+                            .ifPresent(e::setAbogado);
+                }
+            }
+            listaUsuarios.addAll(empresas);
+        }
+
+        if (tblGeneral != null) {
+            tblGeneral.refresh();
         }
     }
 
@@ -315,6 +381,9 @@ public class AdminDashboardController implements Initializable {
             }
             if (txtPassword != null) {
                 txtPassword.setText(a.getPassword());
+            }
+            if (txtConfirmPassword != null) {
+                txtConfirmPassword.setText(a.getPassword());
             }
 
         } else if (item instanceof Cliente) {
@@ -361,12 +430,19 @@ public class AdminDashboardController implements Initializable {
             if (txtDireccion != null) {
                 txtDireccion.setText(e.getDireccion());
             }
+            if (txtPassword != null) {
+                txtPassword.setText(e.getPassword());
+            }
+            if (txtConfirmPassword != null) {
+                txtConfirmPassword.setText(e.getPassword());
+            }
             if (cmbAsignarAbogado != null) {
                 cmbAsignarAbogado.setValue(e.getAbogado());
             }
         }
     }
 
+    // --- ACCIONES DE BOTONES ---
     @FXML
     public void handleCrear(ActionEvent event) {
         String tipo = cmbFormTipo != null ? cmbFormTipo.getValue() : null;
@@ -387,21 +463,28 @@ public class AdminDashboardController implements Initializable {
             return;
         }
 
-        if ("Abogado".equalsIgnoreCase(tipo) || "Empresa".equalsIgnoreCase(tipo)) {
+        // Validación de contraseña para roles que la utilicen
+        if ("Abogado".equalsIgnoreCase(tipo) || "Empresa".equalsIgnoreCase(tipo) || "Cliente".equalsIgnoreCase(tipo)) {
             if (!pass.isEmpty() && !pass.equals(confirmPass)) {
                 mostrarAlerta(Alert.AlertType.ERROR, "Validación", "Las contraseñas no coinciden.");
                 return;
             }
         }
 
+        // Obtener la instancia del abogado asignado desde el ComboBox
+        Abogado abogadoAsignado = cmbAsignarAbogado != null ? cmbAsignarAbogado.getValue() : null;
+
         boolean exito = false;
 
         if ("Abogado".equalsIgnoreCase(tipo)) {
-            // Lectura dinámica del UUID de socio
+
+            if (id == null || id.trim().isEmpty()) {
+                id = java.util.UUID.randomUUID().toString();
+            }
+
             String idSocio = abogadoRepo.obtenerPrimerIdSocio();
-            if (idSocio == null) {
-                mostrarAlerta(Alert.AlertType.ERROR, "Error", "No existe ningún registro en la tabla 'socio' de la BD.");
-                return;
+            if (idSocio == null || idSocio.trim().isEmpty()) {
+                idSocio = java.util.UUID.randomUUID().toString();
             }
 
             Abogado nuevo = new Abogado();
@@ -415,32 +498,44 @@ public class AdminDashboardController implements Initializable {
             exito = abogadoRepo.guardar(nuevo);
 
         } else if ("Cliente".equalsIgnoreCase(tipo)) {
-            Cliente nuevo = new Cliente();
-            nuevo.setDpi(id);
-            nuevo.setNombre(nombre);
-            nuevo.setApellido(apellido);
-            nuevo.setTelefono(telefono);
-            nuevo.setDireccion(txtDireccion != null ? txtDireccion.getText() : "");
-            nuevo.setNit(txtNit != null ? txtNit.getText() : "");
-            nuevo.setAbogado(cmbAsignarAbogado != null ? cmbAsignarAbogado.getValue() : null);
-            exito = clienteRepo.guardar(nuevo);
+
+            String direccion = txtDireccion != null ? txtDireccion.getText() : "";
+            String nit = txtNit != null ? txtNit.getText() : "";
+
+            String passwordFinal = !pass.isEmpty() ? pass : "N/A";
+
+            Cliente nuevoCliente = new Cliente();
+            nuevoCliente.setDpi(id);
+            nuevoCliente.setNombre(nombre);
+            nuevoCliente.setApellido(apellido);
+            nuevoCliente.setTelefono(telefono);
+            nuevoCliente.setDireccion(direccion);
+            nuevoCliente.setNit(nit);
+            nuevoCliente.setPassword(passwordFinal);
+            nuevoCliente.setAbogado(abogadoAsignado); // Asignación del objeto Abogado
+
+            exito = clienteRepo.guardar(nuevoCliente);
 
         } else if ("Empresa".equalsIgnoreCase(tipo)) {
+
             Empresas nueva = new Empresas();
             nueva.setIdEmpresa(id);
             nueva.setNombre(nombre);
             nueva.setTelefono(telefono);
             nueva.setDireccion(txtDireccion != null ? txtDireccion.getText() : "");
-            nueva.setPassword(pass);
-            nueva.setAbogado(cmbAsignarAbogado != null ? cmbAsignarAbogado.getValue() : null);
+            nueva.setPassword(!pass.isEmpty() ? pass : "N/A");
+            nueva.setAbogado(abogadoAsignado); // Asignación del objeto Abogado
+
             exito = empresaRepo.guardar(nueva);
         }
 
         if (exito) {
             mostrarAlerta(Alert.AlertType.INFORMATION, "Éxito", "Registro guardado correctamente.");
-            cargarDatosTabla();
-            cargarComboAbogados();
-            limpiarCampos();
+            actualizarTodo();
+            if (tblGeneral != null) {
+                tblGeneral.refresh(); // Forzar renderizado en la interfaz gráfica
+            }
+            handleLimpiar(null); // Limpiar los campos del formulario tras guardar
         } else {
             mostrarAlerta(Alert.AlertType.ERROR, "Error", "No se pudo guardar el registro.");
         }
@@ -485,8 +580,7 @@ public class AdminDashboardController implements Initializable {
 
         if (exito) {
             mostrarAlerta(Alert.AlertType.INFORMATION, "Éxito", "Registro actualizado correctamente.");
-            cargarDatosTabla();
-            limpiarCampos();
+            actualizarTodo();
         } else {
             mostrarAlerta(Alert.AlertType.ERROR, "Error", "No se pudo actualizar el registro.");
         }
@@ -510,8 +604,7 @@ public class AdminDashboardController implements Initializable {
 
         if (exito) {
             mostrarAlerta(Alert.AlertType.INFORMATION, "Éxito", "Registro eliminado correctamente.");
-            cargarDatosTabla();
-            limpiarCampos();
+            actualizarTodo();
         } else {
             mostrarAlerta(Alert.AlertType.ERROR, "Error", "No se pudo eliminar el registro.");
         }
@@ -542,11 +635,13 @@ public class AdminDashboardController implements Initializable {
         }
     }
 
-    private void limpiarCampos() {
+    // Método anotado con @FXML para ser llamado desde el botón en la vista FXML
+    @FXML
+    public void handleLimpiar(ActionEvent event) {
         limpiarCamposSinResetSeleccion();
         itemSeleccionado = null;
-        if (tablaUsuarios != null) {
-            tablaUsuarios.getSelectionModel().clearSelection();
+        if (tblGeneral != null) {
+            tblGeneral.getSelectionModel().clearSelection();
         }
     }
 
@@ -577,6 +672,9 @@ public class AdminDashboardController implements Initializable {
         }
         if (cmbAsignarAbogado != null) {
             cmbAsignarAbogado.setValue(null);
+        }
+        if (txtUsuario != null) {
+            txtUsuario.clear();
         }
     }
 

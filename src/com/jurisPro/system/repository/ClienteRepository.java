@@ -57,12 +57,16 @@ public class ClienteRepository {
             if (coincideUsuario && password != null && password.equals(cliente.getPassword())) {
                 return true;
             }
+
+        } catch (SQLException e) {
+            System.err.println("Error al autenticar cliente: " + e.getMessage());
         }
         return false;
     }
 
     public boolean guardar(Cliente cliente) {
-        String sql = "{CALL sp_insert_cliente(?, ?, ?, ?, ?, ?, ?)}";
+        // Ahora envía 8 parámetros incluyendo la contraseña
+        String sql = "{CALL sp_insert_cliente(?, ?, ?, ?, ?, ?, ?, ?)}";
 
         if (cliente == null || cliente.getDpi() == null || cliente.getDpi().trim().isEmpty()) {
             System.err.println("Error: El DPI del cliente no puede estar vacío.");
@@ -78,10 +82,13 @@ public class ClienteRepository {
             stmt.setString(4, cliente.getApellido());
             stmt.setString(5, cliente.getTelefono());
             stmt.setString(6, cliente.getDireccion());
-            stmt.setString(7, cliente.getAbogado() != null
-                    ? cliente.getAbogado().getIdAbogado() : null);
 
-            stmt.executeUpdate();
+            stmt.setString(7, cliente.getPassword());
+
+            String idAbogado = (cliente.getAbogado() != null) ? cliente.getAbogado().getIdAbogado() : null;
+            stmt.setString(8, idAbogado);
+
+            stmt.execute();
             return true;
         } catch (SQLException e) {
             System.err.println("Error al insertar cliente: " + e.getMessage());
@@ -90,7 +97,7 @@ public class ClienteRepository {
     }
 
     public boolean actualizar(Cliente cliente) {
-        String sql = "{CALL sp_update_cliente(?, ?, ?, ?, ?, ?, ?)}";
+        String sql = "{CALL sp_update_cliente(?, ?, ?, ?, ?, ?, ?, ?)}";
 
         try (Connection conn = Conexion.getConnection();
              CallableStatement stmt = conn.prepareCall(sql)) {
@@ -101,10 +108,13 @@ public class ClienteRepository {
             stmt.setString(4, cliente.getApellido());
             stmt.setString(5, cliente.getTelefono());
             stmt.setString(6, cliente.getDireccion());
-            stmt.setString(7, cliente.getAbogado() != null
-                    ? cliente.getAbogado().getIdAbogado() : null);
 
-            stmt.executeUpdate();
+            stmt.setString(7, cliente.getPassword());
+
+            String idAbogado = (cliente.getAbogado() != null) ? cliente.getAbogado().getIdAbogado() : null;
+            stmt.setString(8, idAbogado);
+
+            stmt.execute();
             return true;
         } catch (SQLException e) {
             System.err.println("Error al actualizar cliente: " + e.getMessage());
