@@ -22,6 +22,22 @@ public class ClienteService {
     }
 
     // =========================================================
+    // CREAR CLIENTE + CUENTA DE ACCESO
+    // =========================================================
+
+    public boolean crearClienteConCredenciales(
+            Cliente cliente,
+            String username,
+            String password) {
+
+        return clienteRepository.guardarConCredenciales(
+                cliente,
+                username,
+                password
+        );
+    }
+
+    // =========================================================
     // OBTENER TODOS LOS CLIENTES
     // =========================================================
 

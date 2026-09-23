@@ -185,6 +185,50 @@ public class AbogadoRepository {
     }
 
     // =========================================================
+    // OBTENER ABOGADO POR ID
+    // =========================================================
+    public Abogado obtenerPorId(String idAbogado) {
+
+        if (idAbogado == null || idAbogado.isBlank()) {
+            return null;
+        }
+
+        String sql = """
+            SELECT Id_abogado, name, lastname, especiality, telephone,
+                   Id_socio, username, password, id_usuario
+            FROM Abogados
+            WHERE Id_abogado = ?
+            LIMIT 1
+            """;
+
+        try (Connection conn = Conexion.getConnection();
+             java.sql.PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, idAbogado);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    Abogado abogado = new Abogado();
+                    abogado.setIdAbogado(rs.getString("Id_abogado"));
+                    abogado.setName(rs.getString("name"));
+                    abogado.setLastname(rs.getString("lastname"));
+                    abogado.setEspeciality(rs.getString("especiality"));
+                    abogado.setTelephone(rs.getString("telephone"));
+                    abogado.setIdSocio(rs.getString("Id_socio"));
+                    abogado.setUsername(rs.getString("username"));
+                    abogado.setPassword(rs.getString("password"));
+                    abogado.setIdUsuario(rs.getString("id_usuario"));
+                    return abogado;
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al obtener abogado por ID: " + e.getMessage());
+        }
+
+        return null;
+    }
+
+    // =========================================================
     // GUARDAR ABOGADO
     // =========================================================
     public boolean guardar(Abogado abogado) {

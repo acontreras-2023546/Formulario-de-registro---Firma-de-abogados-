@@ -15,6 +15,7 @@ public class Cliente {
     // Se mantienen por compatibilidad con otras partes
     // del proyecto que todavía los puedan utilizar.
     private String password;
+    private String username;
     private String idCaso;
     private String idUsuario;
 
@@ -111,6 +112,14 @@ public class Cliente {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public Abogado getAbogado() {

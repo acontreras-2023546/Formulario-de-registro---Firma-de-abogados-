@@ -216,39 +216,198 @@ public class ClienteRepository {
     // AUTENTICAR CLIENTE
     // =========================================================
 
-    public boolean autenticarCliente(
+    /**
+     * Busca al cliente mediante las credenciales guardadas en Usuarios.
+     * La relación se realiza mediante Clientes.id_usuario.
+     */
+    public Cliente autenticarCliente(
             String usuario,
             String password) {
 
-        for (Cliente cliente : listar()) {
+        String sql = """
+            SELECT
+                c.DPI,
+                c.NIT,
+                c.name,
+                c.lastname,
+                c.telephone,
+                c.adress,
+                c.Id_abogado,
+                c.id_usuario,
+                u.username
+            FROM Clientes c
+            INNER JOIN Usuarios u
+                ON c.id_usuario = u.id_usuario
+            WHERE u.username = ?
+              AND u.password = ?
+              AND u.rol = 'CLIENTE'
+            LIMIT 1
+            """;
 
-            boolean coincideUsuario =
-                    usuario != null
-                    && (
-                        usuario.equalsIgnoreCase(
-                                cliente.getDpi()
-                        )
-                        ||
-                        (
-                            cliente.getNit() != null
-                            &&
-                            usuario.equalsIgnoreCase(
-                                    cliente.getNit()
-                            )
-                        )
-                    );
+        try (Connection conn = Conexion.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            if (coincideUsuario
-                    && password != null
-                    && password.equals(
-                            cliente.getPassword()
-                    )) {
+            stmt.setString(1, usuario);
+            stmt.setString(2, password);
 
-                return true;
+            try (ResultSet rs = stmt.executeQuery()) {
+
+                if (rs.next()) {
+
+                    Cliente cliente = new Cliente();
+
+                    cliente.setDpi(rs.getString("DPI"));
+                    cliente.setNit(rs.getString("NIT"));
+                    cliente.setNombre(rs.getString("name"));
+                    cliente.setApellido(rs.getString("lastname"));
+                    cliente.setTelefono(rs.getString("telephone"));
+                    cliente.setDireccion(rs.getString("adress"));
+                    cliente.setIdUsuario(rs.getString("id_usuario"));
+                    cliente.setUsername(rs.getString("username"));
+
+                    String idAbogado = rs.getString("Id_abogado");
+
+                    if (idAbogado != null
+                            && !idAbogado.trim().isEmpty()) {
+
+                        Abogado abogado = new Abogado();
+                        abogado.setIdAbogado(idAbogado);
+                        cliente.setAbogado(abogado);
+                    }
+
+                    return cliente;
+                }
             }
+
+        } catch (SQLException e) {
+
+            System.err.println(
+                    "Error al autenticar cliente: "
+                    + e.getMessage()
+            );
         }
 
-        return false;
+        return null;
+    }
+
+    // =========================================================
+    // CREAR CLIENTE + CUENTA DE ACCESO
+    // =========================================================
+
+    /**
+     * Crea el cliente y su usuario CLIENTE dentro de una misma
+     * transacción. Si cualquiera de las dos operaciones falla,
+     * se deshacen ambas.
+     */
+    public boolean guardarConCredenciales(
+            Cliente cliente,
+            String username,
+            String password) {
+
+        if (cliente == null
+                || username == null
+                || username.trim().isEmpty()
+                || password == null
+                || password.isEmpty()) {
+
+            return false;
+        }
+
+        String idUsuario =
+                java.util.UUID.randomUUID().toString();
+
+        String sqlUsuario = """
+            INSERT INTO Usuarios
+                (id_usuario, username, password, rol)
+            VALUES
+                (?, ?, ?, 'CLIENTE')
+            """;
+
+        String sqlCliente = """
+            INSERT INTO Clientes
+                (DPI, NIT, name, lastname, telephone, adress, Id_abogado, id_usuario)
+            VALUES
+                (?, ?, ?, ?, ?, ?, ?, ?)
+            """;
+
+        try (Connection conn = Conexion.getConnection()) {
+
+            conn.setAutoCommit(false);
+
+            try {
+
+                // 1. Crear cuenta
+                try (PreparedStatement stmtUsuario =
+                        conn.prepareStatement(sqlUsuario)) {
+
+                    stmtUsuario.setString(1, idUsuario);
+                    stmtUsuario.setString(2, username.trim());
+                    stmtUsuario.setString(3, password);
+
+                    stmtUsuario.executeUpdate();
+                }
+
+                // 2. Crear cliente relacionado con la cuenta
+                try (PreparedStatement stmtCliente =
+                        conn.prepareStatement(sqlCliente)) {
+
+                    stmtCliente.setString(1, cliente.getDpi());
+                    stmtCliente.setString(2, cliente.getNit());
+                    stmtCliente.setString(3, cliente.getNombre());
+                    stmtCliente.setString(4, cliente.getApellido());
+                    stmtCliente.setString(5, cliente.getTelefono());
+                    stmtCliente.setString(6, cliente.getDireccion());
+                    stmtCliente.setString(
+                            7,
+                            cliente.getAbogado().getIdAbogado()
+                    );
+                    stmtCliente.setString(8, idUsuario);
+
+                    stmtCliente.executeUpdate();
+                }
+
+                conn.commit();
+
+                cliente.setIdUsuario(idUsuario);
+                cliente.setUsername(username.trim());
+
+                return true;
+
+            } catch (SQLException e) {
+
+                try {
+                    conn.rollback();
+                } catch (SQLException rollbackError) {
+                    System.err.println(
+                            "Error al hacer rollback: "
+                            + rollbackError.getMessage()
+                    );
+                }
+
+                System.err.println(
+                        "Error al crear cliente y usuario: "
+                        + e.getMessage()
+                );
+
+                return false;
+
+            } finally {
+
+                try {
+                    conn.setAutoCommit(true);
+                } catch (SQLException ignored) {
+                }
+            }
+
+        } catch (SQLException e) {
+
+            System.err.println(
+                    "Error de conexión al crear cliente: "
+                    + e.getMessage()
+            );
+
+            return false;
+        }
     }
 
     // =========================================================
