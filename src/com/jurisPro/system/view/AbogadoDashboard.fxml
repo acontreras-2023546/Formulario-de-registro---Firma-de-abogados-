@@ -4,6 +4,7 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.TableColumn?>
@@ -50,7 +51,7 @@
 
             <items>
 
-                <!-- TABLA -->
+                <!-- TABLA DE CLIENTES -->
 
                 <VBox spacing="10">
 
@@ -167,6 +168,34 @@
                         <TextField
                             fx:id="txtDireccion"
                             promptText="Ingrese dirección" />
+
+                        <!-- CREDENCIALES DEL CLIENTE -->
+
+                        <Separator />
+
+                        <Label
+                            style="-fx-font-weight: bold;"
+                            text="Credenciales del Cliente" />
+
+                        <Label text="Username:" />
+
+                        <TextField
+                            fx:id="txtUsername"
+                            promptText="Ingrese username para el cliente" />
+
+                        <Label text="Password:" />
+
+                        <PasswordField
+                            fx:id="txtPassword"
+                            promptText="Ingrese contraseña" />
+
+                        <Label text="Confirmar Password:" />
+
+                        <PasswordField
+                            fx:id="txtConfirmPassword"
+                            promptText="Confirme la contraseña" />
+
+                        <Separator />
 
                         <Label text="Estado del Caso:" />
 

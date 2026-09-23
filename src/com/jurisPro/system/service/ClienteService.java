@@ -13,17 +13,43 @@ public class ClienteService {
         clienteRepository = new ClienteRepository();
     }
 
+    // =========================================================
+    // CREAR CLIENTE
+    // =========================================================
+
     public boolean crearCliente(Cliente cliente) {
         return clienteRepository.insertar(cliente);
     }
+
+    // =========================================================
+    // OBTENER TODOS LOS CLIENTES
+    // =========================================================
 
     public List<Cliente> obtenerClientes() {
         return clienteRepository.listar();
     }
 
+    // =========================================================
+    // OBTENER CLIENTES DE UN ABOGADO
+    // =========================================================
+
+    public List<Cliente> obtenerClientesPorAbogado(
+            String idAbogado) {
+
+        return clienteRepository.listarPorAbogado(idAbogado);
+    }
+
+    // =========================================================
+    // ACTUALIZAR CLIENTE
+    // =========================================================
+
     public boolean actualizarCliente(Cliente cliente) {
         return clienteRepository.actualizar(cliente);
     }
+
+    // =========================================================
+    // ELIMINAR CLIENTE
+    // =========================================================
 
     public boolean eliminarCliente(String dpi) {
         return clienteRepository.eliminar(dpi);

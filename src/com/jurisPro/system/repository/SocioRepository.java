@@ -9,43 +9,90 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 public class SocioRepository {
 
-    public boolean insertarSocio(String nombre, String apellido, String telefono) {
-        String sql = "{CALL sp_insert_socio(?, ?, ?)}";
+    // =========================================================
+    // INSERTAR SOCIO Y DEVOLVER SU ID
+    // =========================================================
+    public String insertarSocio(String nombre, String apellido, String telefono) {
 
-        try (Connection conn = Conexion.getConnection(); CallableStatement stmt = conn.prepareCall(sql)) {
+        String idSocio = UUID.randomUUID().toString();
 
-            stmt.setString(1, nombre);
-            stmt.setString(2, apellido);
-            stmt.setString(3, telefono);
+        String sql = """
+            INSERT INTO Socio
+            (Id_socio, name, lastname, telephone)
+            VALUES (?, ?, ?, ?)
+            """;
 
-            stmt.execute();
-            return true;
+        try (Connection conn = Conexion.getConnection();
+             java.sql.PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, idSocio);
+            stmt.setString(2, nombre);
+            stmt.setString(3, apellido);
+            stmt.setString(4, telefono);
+
+            stmt.executeUpdate();
+
+            return idSocio;
 
         } catch (SQLException e) {
-            System.err.println("Error al insertar socio: " + e.getMessage());
-            return false;
+
+            System.err.println(
+                    "Error al insertar socio: " + e.getMessage()
+            );
+
+            return null;
         }
     }
 
+    // =========================================================
+    // LISTAR SOCIOS
+    // =========================================================
     public List<Map<String, Object>> listarSocios() {
+
         List<Map<String, Object>> socios = new ArrayList<>();
+
         String sql = "{CALL sp_select_socio()}";
 
-        try (Connection conn = Conexion.getConnection(); CallableStatement stmt = conn.prepareCall(sql); ResultSet rs = stmt.executeQuery()) {
+        try (Connection conn = Conexion.getConnection();
+             CallableStatement stmt = conn.prepareCall(sql);
+             ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
+
                 Map<String, Object> socio = new HashMap<>();
-                socio.put("Id_socio", rs.getString("Id_socio"));
-                socio.put("name", rs.getString("name"));
-                socio.put("lastname", rs.getString("lastname"));
-                socio.put("telephone", rs.getString("telephone"));
+
+                socio.put(
+                        "Id_socio",
+                        rs.getString("Id_socio")
+                );
+
+                socio.put(
+                        "name",
+                        rs.getString("name")
+                );
+
+                socio.put(
+                        "lastname",
+                        rs.getString("lastname")
+                );
+
+                socio.put(
+                        "telephone",
+                        rs.getString("telephone")
+                );
+
                 socios.add(socio);
             }
+
         } catch (SQLException e) {
-            System.err.println("Error al listar socios: " + e.getMessage());
+
+            System.err.println(
+                    "Error al listar socios: " + e.getMessage()
+            );
         }
 
         return socios;

@@ -20,12 +20,12 @@
 
 <BorderPane xmlns="http://javafx.com/javafx/23.0.2" 
             xmlns:fx="http://javafx.com/fxml/1" 
-            fx:controller="com.jurispro.system.controller.AdminDashboardController"
+            fx:controller="com.jurisPro.system.controller.AdminDashboardController"
             prefHeight="700.0" prefWidth="1000.0">
             
     <stylesheets>
         <!-- Ruta relativa desde la carpeta 'view' hacia la carpeta 'styles' -->
-        <URL value="@/com/jurispro/system/resources/styles/AdminStyles.css" />
+        <URL value="@/com/jurisPro/system/resources/styles/AdminStyles.css" />
     </stylesheets>
 
 
