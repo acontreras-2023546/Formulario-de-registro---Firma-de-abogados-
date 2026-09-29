@@ -1,0 +1,266 @@
+/* =========================================================
+   PALETA DE COLORES - BUFETE LEGAL
+   ========================================================= */
+
+.root {
+    -fx-background-color: #F5F3EE;
+    -fx-font-family: "Segoe UI", sans-serif;
+}
+
+/* =========================================================
+   BARRA SUPERIOR (TOOLBAR)
+   ========================================================= */
+
+.custom-toolbar {
+    -fx-background-color: #24352F;
+    -fx-padding: 8px 15px;
+}
+
+.toolbar-title {
+    -fx-text-fill: #FFFFFF;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}
+
+/* =========================================================
+   CONTENEDORES Y PANELES (CARDS / SPLIT)
+   ========================================================= */
+
+.panel-card {
+    -fx-background-color: #FFFFFF;
+    -fx-background-radius: 8px;
+    -fx-border-radius: 8px;
+    -fx-border-color: #D8D0C0;
+    -fx-border-width: 1px;
+}
+
+.custom-split-pane {
+    -fx-background-color: transparent;
+    -fx-padding: 10px;
+}
+
+.custom-split-pane > .split-pane-divider {
+    -fx-background-color: #D8D0C0;
+    -fx-padding: 0 1px;
+}
+
+.custom-scroll-pane {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+}
+
+.custom-scroll-pane > .viewport {
+    -fx-background-color: transparent;
+}
+
+/* =========================================================
+   TITULOS Y ETIQUETAS
+   ========================================================= */
+
+.login-title {
+    -fx-text-fill: #24352F;
+    -fx-font-size: 30px;
+    -fx-font-weight: bold;
+}
+
+.section-title {
+    -fx-text-fill: #24352F;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}
+
+.form-label {
+    -fx-text-fill: #40544C;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+}
+
+/* =========================================================
+   CAMPOS DE TEXTO Y CONTRASEÑA
+   ========================================================= */
+
+.text-field,
+.password-field {
+    -fx-background-color: #F5F3EE;
+    -fx-border-color: #D8D0C0;
+    -fx-border-width: 1px;
+    -fx-background-radius: 6px;
+    -fx-border-radius: 6px;
+    -fx-padding: 8px 10px;
+    -fx-font-size: 13px;
+    -fx-text-fill: #24352F;
+}
+
+.text-field:focused,
+.password-field:focused {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #40544C;
+    -fx-border-width: 2px;
+}
+
+/* =========================================================
+   COMBOBOX
+   ========================================================= */
+
+.combo-box {
+    -fx-background-color: #F5F3EE;
+    -fx-border-color: #D8D0C0;
+    -fx-border-width: 1px;
+    -fx-background-radius: 6px;
+    -fx-border-radius: 6px;
+    -fx-font-size: 13px;
+}
+
+.combo-box:focused {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #40544C;
+    -fx-border-width: 2px;
+}
+
+.combo-box .list-cell {
+    -fx-text-fill: #24352F;
+}
+
+.combo-box .arrow {
+    -fx-background-color: #40544C;
+}
+
+/* =========================================================
+   TABLA DE DATOS (TABLEVIEW)
+   ========================================================= */
+
+.custom-table {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #D8D0C0;
+    -fx-border-width: 1px;
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
+}
+
+.custom-table .column-header-background {
+    -fx-background-color: #24352F;
+    -fx-background-radius: 5px 5px 0 0;
+}
+
+.custom-table .column-header,
+.custom-table .filler {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent #40544C transparent transparent;
+    -fx-size: 35px;
+}
+
+.custom-table .column-header .label {
+    -fx-text-fill: #FFFFFF;
+    -fx-font-weight: bold;
+    -fx-alignment: CENTER-LEFT;
+}
+
+.custom-table .table-row-cell {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: transparent transparent #F5F3EE transparent;
+}
+
+.custom-table .table-row-cell:odd {
+    -fx-background-color: #FAFAFA;
+}
+
+.custom-table .table-row-cell:hover {
+    -fx-background-color: #EAE6DF;
+}
+
+.custom-table .table-row-cell:selected {
+    -fx-background-color: #40544C;
+    -fx-text-fill: #FFFFFF;
+}
+
+.custom-table .table-row-cell:selected .text {
+    -fx-fill: #FFFFFF;
+}
+
+/* =========================================================
+   SEPARADORES
+   ========================================================= */
+
+.separator *.line {
+    -fx-border-color: #D8D0C0;
+    -fx-border-width: 1px;
+}
+
+/* =========================================================
+   BOTONES
+   ========================================================= */
+
+/* Botón Principal (Crear) */
+.button-primary {
+    -fx-background-color: #24352F;
+    -fx-text-fill: #FFFFFF;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 6px;
+    -fx-border-radius: 6px;
+    -fx-cursor: hand;
+    -fx-padding: 8px 15px;
+}
+
+.button-primary:hover {
+    -fx-background-color: #40544C;
+}
+
+.button-primary:pressed {
+    -fx-background-color: #66756F;
+}
+
+/* Botón Secundario (Guardar Cambios) */
+.button-secondary {
+    -fx-background-color: #8C7B6B;
+    -fx-text-fill: #FFFFFF;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 6px;
+    -fx-border-radius: 6px;
+    -fx-cursor: hand;
+    -fx-padding: 8px 15px;
+}
+
+.button-secondary:hover {
+    -fx-background-color: #736456;
+}
+
+.button-secondary:pressed {
+    -fx-background-color: #594D42;
+}
+
+/* Botón de Peligro (Eliminar) */
+.button-danger {
+    -fx-background-color: #9E3B33;
+    -fx-text-fill: #FFFFFF;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 6px;
+    -fx-border-radius: 6px;
+    -fx-cursor: hand;
+    -fx-padding: 8px 15px;
+}
+
+.button-danger:hover {
+    -fx-background-color: #822F28;
+}
+
+.button-danger:pressed {
+    -fx-background-color: #66241F;
+}
+
+/* Botón Cerrar Sesión */
+.button-logout {
+    -fx-background-color: transparent;
+    -fx-text-fill: #FFFFFF;
+    -fx-border-color: #D8D0C0;
+    -fx-border-radius: 4px;
+    -fx-background-radius: 4px;
+    -fx-font-size: 13px;
+    -fx-cursor: hand;
+}
+
+.button-logout:hover {
+    -fx-background-color: #40544C;
+}

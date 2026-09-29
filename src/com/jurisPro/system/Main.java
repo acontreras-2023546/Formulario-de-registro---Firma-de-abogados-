@@ -1,20 +1,30 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Main.java to edit this template
- */
 package com.jurisPro.system;
 
-/**
- *
- * @author informatica
- */
-public class Main {
+import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
 
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String[] args) {
-        // TODO code application logic here
+public class Main extends Application {
+
+    @Override
+    public void start(Stage primaryStage) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/jurisPro/system/view/Login.fxml"));
+            Parent root = loader.load();
+
+            Scene scene = new Scene(root);
+            primaryStage.setTitle("JurisPro - Inicio de Sesión");
+            primaryStage.setScene(scene);
+            primaryStage.show();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
-    
+
+    public static void main(String[] args) {
+        launch(args);
+    }
 }
